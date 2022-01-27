@@ -44,6 +44,7 @@ struct sScene {
     bool            enabled[MAX_NODE_COUNT] = {};
     sMat44          models[MAX_NODE_COUNT] = {};
     uint16_t        VAOs[MAX_NODE_COUNT] = {};
+    uint16_t        mesh_of_object[MAX_NODE_COUNT] = {};
 
     // SubMeshes's elements
     uint16_t        submesh_material[MAX_MESH_COUNT] = {};
