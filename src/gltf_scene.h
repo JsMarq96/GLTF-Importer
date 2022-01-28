@@ -15,7 +15,8 @@
 #include <cassert>
 
 #define MAX_MATERIAL_COUNT 2000
-#define MAX_MESH_COUNT 3000
+#define MAX_MESH_COUNT 2000
+#define MAX_SUBMESH_COUNT 3000
 #define MAX_NODE_COUNT 2000
 
 enum eVBO : uint8_t {
@@ -26,11 +27,12 @@ enum eVBO : uint8_t {
 };
 
 struct sSubMesh {
-    uint8_t   used_vbos = 0;
+    bool      used_VBOs[MAX_VBO_COUNT] = { false, false, false };
     uint32_t  VBOs[MAX_VBO_COUNT] = { 0 };
     uint32_t  EBO = 0;
 
     void rendering_bind();
+    void render();
     void rendering_unbind();
     void clean();
 };
@@ -41,26 +43,42 @@ struct sSubMeshChild {
     uint16_t  child_index = 0;
 };
 
+struct sMesh {
+    uint32_t VAO = 0;
+    uint16_t first_submesh = 0;
+};
+ /**
+  * Scene's structure:
+  * A scene is made out of nodes, and each node has:
+  *  -A transformation
+  *  -A mesh
+  *
+  * And a mesh is made by a VAO and a series of submeshes
+  * (primitives of gltf).
+  * Each submesh is also associated with a materials, and has
+  * a series of VBOs
+  * */
 struct sScene {
-    // Scene elements
+    // Scene nodes
     bool            enabled[MAX_NODE_COUNT] = {};
     sMat44          models[MAX_NODE_COUNT] = {};
-    uint16_t        VAOs[MAX_NODE_COUNT] = {};
     uint16_t        mesh_of_object[MAX_NODE_COUNT] = {};
 
-    // SubMeshes's elements
-    uint16_t        submesh_material[MAX_MESH_COUNT] = {};
-    uint16_t        submesh_id[MAX_MESH_COUNT] = {};
-    sSubMeshChild   submesh_child[MAX_MESH_COUNT] = {};
-
-    // Scene composition
+     // Scene composition
     // NOTE: Maybe, its better for data locality to include the is_full/used on the
     //       Submesh/material struct
     sMaterial       materials[MAX_MATERIAL_COUNT] = {};
     bool            is_material_full[MAX_MATERIAL_COUNT] = {};
 
-    sSubMesh        meshes[MAX_MESH_COUNT] = {};
+    sMesh           meshes[MAX_MESH_COUNT] = {};
     bool            is_mesh_full[MAX_MESH_COUNT] = {};
+
+    // SubMeshes's elements
+    // TODO: double check the data locality on these
+    bool            is_submesh_empty[MAX_SUBMESH_COUNT] = {};
+    sSubMesh        submeshes[MAX_SUBMESH_COUNT] = {};
+    uint16_t        submesh_material[MAX_SUBMESH_COUNT] = {};
+    sSubMeshChild   submesh_child[MAX_SUBMESH_COUNT] = {};
 
     void init() {
         memset(enabled, false, sizeof(sScene::enabled));
@@ -87,7 +105,9 @@ struct sScene {
         bool parse_result = loader.LoadASCIIFromFile(&model, &error, &warn, gltf_file_dir);
         assert(parse_result && "Error parsing GLTF model");
 
-        // Create, and fill VBO's data
+        // 1) Create, and fill VBO's data ===================
+        // NOTE: maybe concatenate all the data on a single VBO, in order
+        // to have less bidings on runtime
         uint32_t *total_VBOs = (uint32_t*) malloc(sizeof(uint32_t) * model.bufferViews.size());
         glGenBuffers(model.bufferViews.size(), total_VBOs);
 
@@ -102,19 +122,41 @@ struct sScene {
                          GL_STATIC_DRAW);
         }
 
-        // For each primitive/submesh
-        for(size_t mesh_i = 0; mesh_i <  model.meshes.size(); mesh_i++) {
-            tinygltf::Mesh *mesh = &model.meshes[mesh_i];
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-            for(size_t primitive_i = 0; primitive_i < mesh->primitives.size(); primitive_i++) {
-                tinygltf::Primitive *prim = &mesh->primitives[primitive_i];
+        // 2) Load meshes ===================================
+        // For each mesh AKA group of submeshes/primitives
+        uint32_t *total_VAOs = (uint32_t*) malloc(sizeof(uint32_t) * model.meshes.size());
+        glGenVertexArrays(model.meshes.size(), total_VAOs);
+
+        for(size_t mesh_i = 0; mesh_i <  model.meshes.size(); mesh_i++) {
+            tinygltf::Mesh *gltf_mesh = &model.meshes[mesh_i];
+
+            // Get the first availabe mesh spot on the scene
+            uint16_t mesh_index = 0;
+            for(;mesh_index < MAX_MESH_COUNT; mesh_index++) {
+                if (!is_mesh_full[mesh_index]) {
+                    break;
+                }
+            }
+            is_mesh_full[mesh_index] = true;
+            sMesh *mesh = &meshes[mesh_index];
+
+            mesh->VAO = total_VAOs[mesh_index];
+            glBindVertexArray(mesh->VAO);
+
+            // for each submesh /  primitive
+            for(size_t primitive_i = 0; primitive_i < gltf_mesh->primitives.size(); primitive_i++) {
+                tinygltf::Primitive *prim = &gltf_mesh->primitives[primitive_i];
+                // Get the first available submesh spot on memmory
                 uint16_t submesh_index = 0;
-                for(; submesh_index < MAX_MESH_COUNT; submesh_index++) {
-                    if (!is_mesh_full[submesh_index]) {
+                for(; submesh_index < MAX_SUBMESH_COUNT; submesh_index++) {
+                    if (is_submesh_empty[submesh_index]) {
                         break;
                     }
                 }
-                sSubMesh *curr_submesh = &meshes[submesh_index];
+                sSubMesh *curr_submesh = &submeshes[submesh_index];
 
                 curr_submesh->EBO = prim->indices;
 
@@ -152,9 +194,45 @@ struct sScene {
                 }
 
             }
+
+            glBindVertexArray(0);
         }
+
+        // 3) Load Textures =========================================
+        // 4) Load Materials ========================================
+        // 5) Load Models ===========================================
+        // Cleanup
+        free(total_VBOs);
+        // free gltf
     }
 
+    void render() {
+        for(uint16_t node_i = 0; node_i < MAX_NODE_COUNT; node_i++) {
+            if (!enabled[node_i]) {
+                continue;
+            }
+
+            sMesh *curr_mesh = &meshes[mesh_of_object[node_i]];
+
+            glBindVertexArray(curr_mesh->VAO);
+
+            for(uint16_t submesh_id = curr_mesh->first_submesh; submesh_id < MAX_SUBMESH_COUNT ;) {
+                // Bind material
+                materials[submesh_material[submesh_id]].enable();
+                // Bind & render submesh
+                submeshes[submesh_id].rendering_bind();
+                submeshes[submesh_id].render();
+                submeshes[submesh_id].rendering_unbind();
+
+                // Render all the child/ associated submeshes with the current mesh
+                if (submesh_child[submesh_id].has_child) {
+                    submesh_id = submesh_child[submesh_id].child_index;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
     void clean();
 };
 
