@@ -160,37 +160,55 @@ struct sScene {
 
                 curr_submesh->EBO = prim->indices;
 
+                //TODO: WARNING: This is only for a very strict format, so it may be a VERY bad idea
                 if (prim->attributes.find("POSITION") == prim->attributes.end()) {
                     uint32_t accesor_i = prim->attributes["POSITION"];
                     tinygltf::Accessor *accesor = &model.accessors[accesor_i];
 
-                    glBindBuffer(GL_ARRAY_BUFFER, total_VBOs[accesor->bufferView]);
-                    curr_submesh->VBOs[VERTEX_BUFFER] = accesor->bufferView;
+                    curr_submesh->VBOs[VERTEX_BUFFER] = total_VBOs[accesor->bufferView];
+                    glBindBuffer(GL_ARRAY_BUFFER, curr_submesh->VBOs[VERTEX_BUFFER]);
 
                     glEnableVertexAttribArray(VERTEX_BUFFER);
-                    glVertexAttribPointer(VERTEX_BUFFER)
+                    glVertexAttribPointer(VERTEX_BUFFER,
+                                          3,
+                                          GL_FLOAT,
+                                          accesor->normalized ? GL_TRUE : GL_FALSE,
+                                          3 * sizeof(float),
+                                          (void*) 0);
                 }
 
                 if (prim->attributes.find("NORMAL") == prim->attributes.end()) {
                     uint32_t accesor_i = prim->attributes["NORMAL"];
                     tinygltf::Accessor *accesor = &model.accessors[accesor_i];
 
-                    glBindBuffer(GL_ARRAY_BUFFER, total_VBOs[accesor->bufferView]);
-                    curr_submesh->VBOs[NORMAL_BUFFER] = accesor->bufferView;
+                    curr_submesh->VBOs[NORMAL_BUFFER] = total_VBOs[accesor->bufferView];
+                    glBindBuffer(GL_ARRAY_BUFFER, curr_submesh->VBOs[NORMAL_BUFFER]);
 
                     glEnableVertexAttribArray(NORMAL_BUFFER);
-                    // glVertexAttribPointer
+                    glVertexAttribPointer(NORMAL_BUFFER,
+                                          3,
+                                          GL_FLOAT,
+                                          accesor->normalized ? GL_TRUE : GL_FALSE,
+                                          3 * sizeof(float),
+                                          (void*) 0);
+
                 }
 
                 if (prim->attributes.find("TEXCOORD_0") == prim->attributes.end()) {
                     uint32_t accesor_i = prim->attributes["TEXCOORD_0"];
                     tinygltf::Accessor *accesor = &model.accessors[accesor_i];
 
-                    glBindBuffer(GL_ARRAY_BUFFER, total_VBOs[accesor->bufferView]);
-                    curr_submesh->VBOs[UV_BUFFER] = accesor->bufferView;
+                    curr_submesh->VBOs[UV_BUFFER] = total_VBOs[accesor->bufferView];
+                    glBindBuffer(GL_ARRAY_BUFFER, curr_submesh->VBOs[UV_BUFFER]);
 
                     glEnableVertexAttribArray(UV_BUFFER);
-                    // glVertexAttribPointer
+                    glVertexAttribPointer(UV_BUFFER,
+                                          2,
+                                          GL_FLOAT,
+                                          accesor->normalized ? GL_TRUE : GL_FALSE,
+                                          2 * sizeof(float),
+                                          (void*) 0);
+
                 }
 
             }
@@ -221,6 +239,7 @@ struct sScene {
                 materials[submesh_material[submesh_id]].enable();
                 // Bind & render submesh
                 submeshes[submesh_id].rendering_bind();
+                // TODO: add render uniforms
                 submeshes[submesh_id].render();
                 submeshes[submesh_id].rendering_unbind();
 
