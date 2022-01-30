@@ -1,4 +1,7 @@
 #include "gltf_scene.h"
+#include "gl3w.h"
+#include "glcorearb.h"
+#include <cstdint>
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -41,27 +44,33 @@ void sScene::init() {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         // 2) Load meshes ===================================
-        // For each mesh AKA group of submeshes/primitives
-        uint32_t *total_VAOs = (uint32_t*) malloc(sizeof(uint32_t) * model.meshes.size());
-        glGenVertexArrays(model.meshes.size(), total_VAOs);
+        // Temp storage for building the nodes,
+        // relates the GLTF's order to the in-engine order
+        uint32_t *mesh_submesh_index = (uint32_t*) malloc(model.meshes.size() * sizeof(uint32_t));
 
+        // Count the number of primitives, and create VAOs
+        uint32_t primitive_count = 0;
         for(size_t mesh_i = 0; mesh_i <  model.meshes.size(); mesh_i++) {
-            tinygltf::Mesh *gltf_mesh = &model.meshes[mesh_i];
+            primitive_count += model.meshes[mesh_i].primitives.size();
+        }
+        uint32_t *total_VAOs = (uint32_t*) malloc(sizeof(uint32_t) * primitive_count);
+        glGenVertexArrays(primitive_count, total_VAOs);
+        uint16_t current_VAO_index = 0;
 
-            // Get the first availabe mesh spot on the scene
-            uint16_t mesh_index = 0;
-            for(;mesh_index < MAX_MESH_COUNT; mesh_index++) {
-                if (!is_mesh_full[mesh_index]) {
+        for(size_t mesh_i = 0; mesh_i < model.meshes.size(); mesh_i++) {
+            // Store the first submesh for this mesh
+            uint16_t submesh_first_spot = 0;
+            for(;submesh_first_spot < MAX_SUBMESH_COUNT; submesh_first_spot++) {
+                if (is_submesh_empty[submesh_first_spot]) {
                     break;
                 }
             }
-            is_mesh_full[mesh_index] = true;
-            sMesh2 *mesh = &meshes[mesh_index];
+            mesh_submesh_index[mesh_i] = submesh_first_spot;
 
-            mesh->VAO = total_VAOs[mesh_index];
-            glBindVertexArray(mesh->VAO);
+            // Iterate primitives
+            uint16_t last_submesh = submesh_first_spot;
+            tinygltf::Mesh *gltf_mesh = &model.meshes[mesh_i];
 
-            // for each submesh /  primitive
             for(size_t primitive_i = 0; primitive_i < gltf_mesh->primitives.size(); primitive_i++) {
                 tinygltf::Primitive *prim = &gltf_mesh->primitives[primitive_i];
                 // Get the first available submesh spot on memmory
@@ -71,11 +80,10 @@ void sScene::init() {
                         break;
                     }
                 }
-                sSubMesh *curr_submesh = &submeshes[submesh_index];
+                sSubMeshRenderData *curr_render_data = &submeshes_render[submesh_index];
+                sSubMeshRenderBuffers *curr_render_buffers = &submeshes_buffers[submesh_index];
 
-                curr_submesh->EBO = prim->indices;
-
-                // TODO: a LUT for this??
+                // Set rendering mode TODO: a LUT for this??
                 uint32_t mode = 0;
                 switch(prim->mode) {
                     case TINYGLTF_MODE_TRIANGLES: mode = GL_TRIANGLES; break;
@@ -86,15 +94,25 @@ void sScene::init() {
                     case TINYGLTF_MODE_POINTS: mode = GL_POINTS; break;
                     default: assert("Not implemented rendering mode");
                 }
-                curr_submesh->rendering_primitive = mode;
+                curr_render_data->render_mode = mode;
 
+                // Bind VAO
+                curr_render_data->VAO = total_VAOs[current_VAO_index];
+                glBindVertexArray(curr_render_data->VAO);
+
+                // Store and bind EBO
+                curr_render_buffers->EBO = prim->indices;
+                curr_render_data->indices_size = model.accessors[prim->indices].count;
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, curr_render_buffers->EBO);
+
+                // Bind VBOs
                 //TODO: WARNING: This is only for a very strict format, so it may be a VERY bad idea
                 if (prim->attributes.find("POSITION") == prim->attributes.end()) {
                     uint32_t accesor_i = prim->attributes["POSITION"];
                     tinygltf::Accessor *accesor = &model.accessors[accesor_i];
 
-                    curr_submesh->VBOs[VERTEX_BUFFER] = total_VBOs[accesor->bufferView];
-                    glBindBuffer(GL_ARRAY_BUFFER, curr_submesh->VBOs[VERTEX_BUFFER]);
+                    curr_render_buffers->VBOs[VERTEX_BUFFER] = total_VBOs[accesor->bufferView];
+                    glBindBuffer(GL_ARRAY_BUFFER, curr_render_buffers->VBOs[VERTEX_BUFFER]);
 
                     glEnableVertexAttribArray(VERTEX_BUFFER);
                     glVertexAttribPointer(VERTEX_BUFFER,
@@ -104,13 +122,12 @@ void sScene::init() {
                                           3 * sizeof(float),
                                           (void*) 0);
                 }
-
                 if (prim->attributes.find("NORMAL") == prim->attributes.end()) {
                     uint32_t accesor_i = prim->attributes["NORMAL"];
                     tinygltf::Accessor *accesor = &model.accessors[accesor_i];
 
-                    curr_submesh->VBOs[NORMAL_BUFFER] = total_VBOs[accesor->bufferView];
-                    glBindBuffer(GL_ARRAY_BUFFER, curr_submesh->VBOs[NORMAL_BUFFER]);
+                    curr_render_buffers->VBOs[NORMAL_BUFFER] = total_VBOs[accesor->bufferView];
+                    glBindBuffer(GL_ARRAY_BUFFER, curr_render_buffers->VBOs[NORMAL_BUFFER]);
 
                     glEnableVertexAttribArray(NORMAL_BUFFER);
                     glVertexAttribPointer(NORMAL_BUFFER,
@@ -121,13 +138,12 @@ void sScene::init() {
                                           (void*) 0);
 
                 }
-
                 if (prim->attributes.find("TEXCOORD_0") == prim->attributes.end()) {
                     uint32_t accesor_i = prim->attributes["TEXCOORD_0"];
                     tinygltf::Accessor *accesor = &model.accessors[accesor_i];
 
-                    curr_submesh->VBOs[UV_BUFFER] = total_VBOs[accesor->bufferView];
-                    glBindBuffer(GL_ARRAY_BUFFER, curr_submesh->VBOs[UV_BUFFER]);
+                    curr_render_buffers->VBOs[UV_BUFFER] = total_VBOs[accesor->bufferView];
+                    glBindBuffer(GL_ARRAY_BUFFER, curr_render_buffers->VBOs[UV_BUFFER]);
 
                     glEnableVertexAttribArray(UV_BUFFER);
                     glVertexAttribPointer(UV_BUFFER,
@@ -139,9 +155,16 @@ void sScene::init() {
 
                 }
 
-            }
+                // Add to previus submesh as a child
+                submesh_child[last_submesh].has_child = true;
+                submesh_child[last_submesh].child_index = submesh_index;
+                last_submesh = submesh_index;
 
-            glBindVertexArray(0);
+                // Unbind VAO
+                glBindVertexArray(0);
+            }
+            // Remove child for the last submesh
+            submesh_child[last_submesh].has_child = false;
         }
 
         // 3) Load Textures =========================================
@@ -157,7 +180,7 @@ void sScene::init() {
             tinygltf::Material *tiny_material = &model.materials[material_i];
             sMaterial *material = &materials[material_index];
 
-            tiny_material->normalTexture;
+            //tiny_material->normalTexture;
         }
         // 5) Load Nodes ============================================
         // Cleanup
@@ -172,22 +195,24 @@ void sScene::init() {
                 continue;
             }
 
-            sMesh2 *curr_mesh = &meshes[mesh_of_object[node_i]];
+            for(uint16_t submesh_index = mesh_of_object[node_i]; submesh_index < MAX_SUBMESH_COUNT ;) {
+                sSubMeshRenderData *render_data = &submeshes_render[submesh_index];
+                // Bind VAO
+                glBindVertexArray(render_data->VAO);
 
-            glBindVertexArray(curr_mesh->VAO);
-
-            for(uint16_t submesh_id = curr_mesh->first_submesh; submesh_id < MAX_SUBMESH_COUNT ;) {
                 // Bind material
-                materials[submesh_material[submesh_id]].enable();
-                // Bind & render submesh
-                //submeshes[submesh_id].rendering_bind();
-                // TODO: add render uniforms
-                //submeshes[submesh_id].render();
-                //submeshes[submesh_id].rendering_unbind();
+                materials[submesh_material[submesh_index]].enable();
+
+                // TODO: uniforms
+
+                glDrawElements(render_data->render_mode,
+                               render_data->indices_size,
+                               GL_UNSIGNED_SHORT,
+                               0);
 
                 // Render all the child/ associated submeshes with the current mesh
-                if (submesh_child[submesh_id].has_child) {
-                    submesh_id = submesh_child[submesh_id].child_index;
+                if (submesh_child[submesh_index].has_child) {
+                    submesh_index = submesh_child[submesh_index].child_index;
                 } else {
                     break;
                 }

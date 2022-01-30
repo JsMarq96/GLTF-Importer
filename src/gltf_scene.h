@@ -25,11 +25,17 @@ enum eVBO : uint8_t {
     MAX_VBO_COUNT
 };
 
-struct sSubMesh {
+
+struct sSubMeshRenderData {
+    uint32_t VAO = 0;
+    uint32_t render_mode = 0;
+    uint16_t indices_size = 0;
+};
+
+struct sSubMeshRenderBuffers {
     bool      used_VBOs[MAX_VBO_COUNT] = { false, false, false };
     uint32_t  VBOs[MAX_VBO_COUNT] = { 0 };
     uint32_t  EBO = 0;
-    uint32_t  rendering_primitive = 0;
 
     void clean();
 };
@@ -46,33 +52,28 @@ struct sSubMeshChild {
   *  -A transformation
   *  -A mesh
   *
-  * And a mesh is made by a VAO and a series of submeshes
-  * (primitives of gltf).
   * Each submesh is also associated with a materials, and has
   * a series of VBOs
   * */
 struct sScene {
     // Scene nodes
-    bool            enabled[MAX_NODE_COUNT] = {};
-    sMat44          models[MAX_NODE_COUNT] = {};
-    uint16_t        mesh_of_object[MAX_NODE_COUNT] = {};
+    bool                      enabled[MAX_NODE_COUNT] = {};
+    sMat44                    models[MAX_NODE_COUNT] = {};
+    uint16_t                  mesh_of_object[MAX_NODE_COUNT] = {};
 
      // Scene composition
     // NOTE: Maybe, its better for data locality to include the is_full/used on the
     //       Submesh/material struct
-    sMaterial       materials[MAX_MATERIAL_COUNT] = {};
-    bool            is_material_full[MAX_MATERIAL_COUNT] = {};
-
-    uint16_t        mesh_first_submesh[MAX_MESH_COUNT] = {};
-    bool            is_mesh_full[MAX_MESH_COUNT] = {};
+    sMaterial                 materials[MAX_MATERIAL_COUNT] = {};
+    bool                      is_material_full[MAX_MATERIAL_COUNT] = {};
 
     // SubMeshes's elements
     // TODO: double check the data locality on these
-    bool            is_submesh_empty[MAX_SUBMESH_COUNT] = {};
-    sSubMesh        submeshes[MAX_SUBMESH_COUNT] = {};
-    uint32_t        submesh_VAO[MAX_SUBMESH_COUNT] = {};
-    uint16_t        submesh_material[MAX_SUBMESH_COUNT] = {};
-    sSubMeshChild   submesh_child[MAX_SUBMESH_COUNT] = {};
+    bool                      is_submesh_empty[MAX_SUBMESH_COUNT] = {};
+    sSubMeshRenderData        submeshes_render[MAX_SUBMESH_COUNT] = {};
+    sSubMeshRenderBuffers     submeshes_buffers[MAX_SUBMESH_COUNT] = {};
+    uint16_t                  submesh_material[MAX_SUBMESH_COUNT] = {};
+    sSubMeshChild             submesh_child[MAX_SUBMESH_COUNT] = {};
 
     void init();
 

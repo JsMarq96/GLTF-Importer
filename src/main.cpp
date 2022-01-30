@@ -209,7 +209,10 @@ int main() {
 			sScene scene = {};
 
 	scene.init();
-	scene.load_gltf_model("resources/models/helmet/SciFiHelmet.gltf", "");
+	scene.load_gltf_model("resources/models/helmet/SciFiHelmet.gltf");
+	glfwDestroyWindow(window);
+	glfwTerminate();
+	std::cout << "UHGR" << std::endl;
 	return 0;
 			// IMGUI version
 			//IMGUI_CHECKVERSION();
