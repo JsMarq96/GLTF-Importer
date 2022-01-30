@@ -178,6 +178,8 @@ void draw_loop(GLFWwindow *window) {
 	}
 }
 
+#include "gltf_scene.h"
+
 int main() {
 	if (!glfwInit()) {
 		return EXIT_FAILURE;
@@ -203,6 +205,12 @@ int main() {
 		std::cout << "Error, could not create window" << std::endl; 
 	} else {
 		if (!gl3wInit()) {
+
+			sScene scene = {};
+
+	scene.init();
+	scene.load_gltf_model("resources/models/helmet/SciFiHelmet.gltf", "");
+	return 0;
 			// IMGUI version
 			//IMGUI_CHECKVERSION();
 			ImGui::CreateContext();

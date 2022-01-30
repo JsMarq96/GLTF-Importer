@@ -7,6 +7,7 @@
 
 #include <GL/gl3w.h>
 #include <string.h>
+#include <cassert>
 
 #define DEFAULT_TEXT_FIDELITY 0
 

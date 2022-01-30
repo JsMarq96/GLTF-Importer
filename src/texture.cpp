@@ -6,7 +6,6 @@
 #include "gl3w.h"
 #include "glcorearb.h"
 
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 void upload_simple_texture_to_GPU(sTexture *text);
