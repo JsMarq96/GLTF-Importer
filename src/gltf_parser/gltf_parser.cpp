@@ -14,22 +14,9 @@ void Parser::load_gltf_model(      sScene  *scene,
         bool parse_result = loader.LoadASCIIFromFile(&model, &error, &warn, gltf_root_dir);
         assert(parse_result && "Error parsing GLTF model");
 
-        Parser::load_gltf_geometry(scene, model);
-        // 3) Load Textures =========================================
-        // 4) Load Materials ========================================
-        for(size_t material_i = 0; material_i < model.materials.size(); material_i++) {
-            uint16_t material_index = 0;
-            for(;material_index < MAX_MATERIAL_COUNT; material_index++) {
-                if (!scene->is_material_full[material_index]) {
-                    break;
-                }
-            }
+        Parser::_load_gltf_geometry(scene, model);
+        Parser::_load_gltf_textures(scene, model);
+        Parser::_load_gltf_materials(scene, model);
 
-            tinygltf::Material *tiny_material = &model.materials[material_i];
-            sMaterial *material = &scene->materials[material_index];
-
-            //tiny_material->normalTexture;
-        }
-        // 5) Load Nodes ============================================
         // free gltf
     }

@@ -10,14 +10,14 @@ namespace Parser {
     void load_gltf_model(sScene *scene,
                          const char* gltf_root_dir);
 
-    void load_gltf_textures(sScene *scene,
-                            const tinygltf::Model &model);
-
-    void load_gltf_materials(sScene *scene,
+    void _load_gltf_textures(sScene *scene,
                              const tinygltf::Model &model);
 
-    void load_gltf_geometry(sScene *scene,
-                            const tinygltf::Model &model);
+    void _load_gltf_materials(sScene *scene,
+                              const tinygltf::Model &model);
+
+    void _load_gltf_geometry(sScene *scene,
+                             const tinygltf::Model &model);
 };
 
 #endif // GLTF_PARSER_H_

@@ -1,7 +1,7 @@
 #include "../gltf_parser.h"
 
 
-void Parser::load_gltf_geometry(sScene *scene,
+void Parser::_load_gltf_geometry(sScene *scene,
                                 const tinygltf::Model &model) {
     // 1) Create, and fill VBO's data ===================
     // NOTE: maybe concatenate all the data on a single VBO, in order
