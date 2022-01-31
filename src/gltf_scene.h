@@ -77,9 +77,8 @@ struct sScene {
 
     void init();
 
-    void load_gltf_model(const char* gltf_dir_file);
-
-    void render();
+    void render(const sCamera &camera,
+                const sMat44 &view_proj) const;
 
     void clean();
 };

@@ -2,12 +2,19 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define TINYGLTF_NOEXCEPTION
+#include "tiny_gltf.h"
+
 #include "math/vector.h"
 #include "mesh.h"
 #include "material.h"
 #include "mesh_renderer.h"
 #include "shader.h"
 #include "input_layer.h"
+#include "gltf_parser.h"
 
 // Dear IMGUI
 #include "imgui/imgui.h"
@@ -208,12 +215,15 @@ int main() {
 
 			sScene scene = {};
 
-	scene.init();
-	scene.load_gltf_model("resources/models/helmet/SciFiHelmet.gltf");
-	glfwDestroyWindow(window);
-	glfwTerminate();
-	std::cout << "UHGR" << std::endl;
-	return 0;
+			scene.init();
+
+			Parser::load_gltf_model(&scene,
+									"resources/models/helmet/SciFiHelmet.gltf");
+
+			glfwDestroyWindow(window);
+			glfwTerminate();
+			std::cout << "UHGR" << std::endl;
+			return 0;
 			// IMGUI version
 			//IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
