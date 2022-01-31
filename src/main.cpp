@@ -2,10 +2,6 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
-#define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define TINYGLTF_NOEXCEPTION
 #include "tiny_gltf.h"
 
 #include "math/vector.h"
