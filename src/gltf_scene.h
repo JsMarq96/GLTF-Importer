@@ -69,7 +69,7 @@ struct sScene {
 
     // SubMeshes's elements
     // TODO: double check the data locality on these
-    bool                      is_submesh_empty[MAX_SUBMESH_COUNT] = {};
+    bool                      is_submesh_full[MAX_SUBMESH_COUNT] = {};
     sSubMeshRenderData        submeshes_render[MAX_SUBMESH_COUNT] = {};
     sSubMeshRenderBuffers     submeshes_buffers[MAX_SUBMESH_COUNT] = {};
     uint16_t                  submesh_material[MAX_SUBMESH_COUNT] = {};

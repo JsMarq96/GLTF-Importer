@@ -12,6 +12,8 @@
 void sScene::init() {
         memset(enabled, false, sizeof(sScene::enabled));
         memset(submesh_child, 0, sizeof(sScene::submesh_child));
+        memset(is_submesh_full, false, sizeof(sScene::is_submesh_full));
+        memset(is_material_full, false, sizeof(sScene::is_material_full));
     };
 
     void sScene::load_gltf_model(const char* gltf_root_dir) {
@@ -61,7 +63,7 @@ void sScene::init() {
             // Store the first submesh for this mesh
             uint16_t submesh_first_spot = 0;
             for(;submesh_first_spot < MAX_SUBMESH_COUNT; submesh_first_spot++) {
-                if (is_submesh_empty[submesh_first_spot]) {
+                if (!is_submesh_full[submesh_first_spot]) {
                     break;
                 }
             }
@@ -76,10 +78,11 @@ void sScene::init() {
                 // Get the first available submesh spot on memmory
                 uint16_t submesh_index = 0;
                 for(; submesh_index < MAX_SUBMESH_COUNT; submesh_index++) {
-                    if (is_submesh_empty[submesh_index]) {
+                    if (!is_submesh_full[submesh_index]) {
                         break;
                     }
                 }
+                is_submesh_full[submesh_index] = true;
                 sSubMeshRenderData *curr_render_data = &submeshes_render[submesh_index];
                 sSubMeshRenderBuffers *curr_render_buffers = &submeshes_buffers[submesh_index];
 
@@ -185,6 +188,7 @@ void sScene::init() {
         // 5) Load Nodes ============================================
         // Cleanup
         free(total_VBOs);
+        free(total_VAOs);
         // free gltf
     }
 
