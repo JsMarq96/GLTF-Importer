@@ -65,7 +65,7 @@ inline sVector3 LERP_3D(const sVector3 &v1,
                   LERP(v1.z, v2.z, alpha) };
 }
 
-inline float to_radians(float degree) { return degree * (M_PI / 180.0); }
+inline float to_radians(float degree) { return degree * (PI / 180.0); }
 
 inline float abs_diff(const float  x,
                       const float  y) {

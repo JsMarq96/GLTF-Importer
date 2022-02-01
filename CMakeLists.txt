@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
 
-SET(CMAKE_CXX_COMPILER g++)
-SET(CMAKE_C_COMPILER gcc)
 
 SET(CMAKE_CXX_FLAGS  "-g")
 
@@ -12,21 +10,31 @@ file(GLOB CPP_IMGUI_SOURCES "src/imgui/*.cpp")
 file(GLOB C_SOURCES "src/*.c")
 set(includes_dir "includes/")
 
-add_executable(PROJECT ${CPP_SOURCES} ${CPP_IMGUI_SOURCES} ${C_SOURCES})
+add_executable(GL_GLFW_TEMPLATE WIN32 ${CPP_SOURCES} ${CPP_IMGUI_SOURCES} ${C_SOURCES})
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) 
+set(GLFW_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory("includes/glfw")
-target_link_libraries(PROJECT "glfw")
+target_link_libraries(GL_GLFW_TEMPLATE "glfw")
 
 set(gl3w_dir "${includes_dir}/GL")
 add_library("gl3w" "${gl3w_dir}/src/gl3w.c")
 target_include_directories("gl3w" PRIVATE "${glw_dir}/")
-target_include_directories(PROJECT PRIVATE "${gl3w_dir}/")
-target_link_libraries(PROJECT "gl3w" "${CMAKE_DL_LIBS}")
+target_include_directories(GL_GLFW_TEMPLATE PRIVATE "${gl3w_dir}/")
+target_link_libraries(GL_GLFW_TEMPLATE "gl3w" "${CMAKE_DL_LIBS}")
 
-set_target_properties(PROJECT PROPERTIES OUTPUT_NAME "template")
+if( MSVC )
+    SET( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup" )
+endif()
+
+
+ if( MSVC )
+    set_property( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT GL_GLFW_TEMPLATE)
+endif()
+
+set_target_properties(GL_GLFW_TEMPLATE PROPERTIES OUTPUT_NAME "template")
 
 include_directories(
   includes

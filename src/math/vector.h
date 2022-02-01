@@ -6,14 +6,14 @@
 union sQuaternion4;
 
 union sVector2 {
-    struct { float x = 0.0f; float y = 0.0f;};
-    float raw_values[2];
+    float raw_values[2] = { 0.0f, 0.0f };
+    struct { float x; float y;};
 };
 
 
 union sVector3 {
-    struct { float x = 0.0f; float y = 0.0f; float z = 0.0f; };
-    float raw_values[3];
+    float raw_values[3] = { 0.0f, 0.0f, 0.0f };
+    struct { float x; float y; float z; };
 
     inline void multiply(const sVector3 &vect) {
       x *= vect.x;
@@ -62,8 +62,8 @@ union sVector3 {
 };
 
 union sVector4 {
-    struct { float x = 0.0f; float y = 0.0f; float z = 0.0f; float w = 0.0f; };
-    float raw_values[4];
+    float raw_values[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    struct { float x; float y; float z; float w; };
 };
 
 

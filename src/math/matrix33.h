@@ -10,12 +10,12 @@
 #include "quaternion.h"
 
 union sMat33 {
-    float raw_values[9];
+    float raw_values[9] = {0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     float mat_values[3][3];
     struct {
-        float sx1 = 1.0f; float sy1 = 0.0f; float tmp1 = 0.0f;
-        float sx2 = 0.0f; float sy2 = 1.0f; float tmp2 = 0.0f;
-        float px = 0.0f; float py = 0.0f; float tmp3 = 1.0;
+        float sx1; float sy1; float tmp1;
+        float sx2; float sy2; float tmp2;
+        float px ; float py; float tmp3;
     };
 
     void set_identity() {

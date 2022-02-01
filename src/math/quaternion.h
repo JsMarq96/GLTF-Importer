@@ -6,12 +6,12 @@
 union sVector3;
 
 union sQuaternion4 {
-    float raw_values[4];
+    float raw_values[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
     struct {
-        float q0 = 1.0f;
-        float q1 = 0.0f;
-        float q2 = 0.0f;
-        float q3 = 0.0f;
+        float q0;
+        float q1;
+        float q2;
+        float q3;
     };
     struct {
         float w;

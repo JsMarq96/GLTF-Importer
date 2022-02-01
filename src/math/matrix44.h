@@ -8,14 +8,14 @@
 #include "math_types.h"
 
 union sMat44 {
-    struct {
-        float sx1 = 1.0f; float sy1 = 0.0f; float sz1 = 0.0f; float tmp1 = 0.0f;
-        float sx2 = 0.0f; float sy2 = 1.0f; float sz2 = 0.0f; float tmp2 = 0.0f;
-        float sx3 = 0.0f; float sy3 = 0.0f; float sz3 = 1.0f; float tmp3 = 0.0f;
-        float px = 0.0f; float py = 0.0f; float pz = 0.0f; float tmp4 = 1.0f;
-    };
-    float raw_values[16];
+    float raw_values[16] = { 0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f, 0.0f };
     float mat_values[4][4];
+    struct {
+        float sx1; float sy1; float sz1; float tmp1;
+        float sx2; float sy2; float sz2; float tmp2;
+        float sx3; float sy3; float sz3; float tmp3;
+        float px; float py; float pz; float tmp4;
+    };
 
     void
     set_identity();
