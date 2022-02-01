@@ -1,12 +1,13 @@
 #include "../gltf_parser.h"
+#include <cstdint>
 
 
-void Parser::_load_gltf_geometry(sScene *scene,
-                                const tinygltf::Model &model) {
+uint32_t* Parser::_load_gltf_geometry(sScene *scene,
+                                      const tinygltf::Model &model,
+                                      const uint32_t *mats_gltf_indexing) {
     // 1) Create, and fill VBO's data ===================
     // NOTE: maybe concatenate all the data on a single VBO, in order
     // to have less bidings on runtime
-    std::cout << model.bufferViews.size() << std::endl;
     uint32_t *total_VBOs = (uint32_t*) malloc(sizeof(uint32_t) * model.bufferViews.size());
     glGenBuffers(model.bufferViews.size(), total_VBOs);
 
@@ -62,6 +63,7 @@ void Parser::_load_gltf_geometry(sScene *scene,
                 }
             }
             scene->is_submesh_full[submesh_index] = true;
+            scene->submesh_material[submesh_index] = mats_gltf_indexing[prim->material];
             sSubMeshRenderData *curr_render_data = &scene->submeshes_render[submesh_index];
             sSubMeshRenderBuffers *curr_render_buffers = &scene->submeshes_buffers[submesh_index];
 
@@ -83,13 +85,17 @@ void Parser::_load_gltf_geometry(sScene *scene,
             glBindVertexArray(curr_render_data->VAO);
 
             // Store and bind EBO
-            curr_render_buffers->EBO = prim->indices;
+            curr_render_buffers->EBO = total_VBOs[model.accessors[prim->indices].bufferView];
             curr_render_data->indices_size = model.accessors[prim->indices].count;
+            curr_render_data->indices_type = model.accessors[prim->indices].type;
+            std::cout << model.accessors[prim->indices].count << std::endl;
+            std::cout << curr_render_data->indices_size << std::endl;
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, curr_render_buffers->EBO);
 
             // Bind VBOs
             //TODO: WARNING: This is only for a very strict format, so it may be a VERY bad idea
             // TODO: auto... UUUGHHH
+
             auto it = prim->attributes.find("POSITION");
             if (it != prim->attributes.end()) {
                 const uint32_t accesor_i = it->second;
@@ -154,4 +160,5 @@ void Parser::_load_gltf_geometry(sScene *scene,
     free(total_VBOs);
     free(total_VAOs);
 
+    return mesh_submesh_index;
 }

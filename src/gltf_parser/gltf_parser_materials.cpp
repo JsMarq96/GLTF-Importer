@@ -1,5 +1,6 @@
 #include "../gltf_parser.h"
 #include "glcorearb.h"
+#include <cstdint>
 
 void _upload_texture(const eTextureType text_type,
                      const tinygltf::Image *tiny_img,
@@ -42,9 +43,9 @@ void _upload_texture(const eTextureType text_type,
                                     text_type);
 }
 
-void Parser::_load_gltf_materials(sScene *scene,
-                                  const tinygltf::Model &model) {
-    // Load Materials
+uint32_t* Parser::_load_gltf_materials(sScene *scene,
+                                       const tinygltf::Model &model) {
+    uint32_t *material_gltf_scene_indexing = (uint32_t*) malloc(sizeof(uint32_t) * model.materials.size());
     for(size_t material_i = 0; material_i < model.materials.size(); material_i++) {
         uint16_t material_index = 0;
         for(;material_index < MAX_MATERIAL_COUNT; material_index++) {
@@ -53,8 +54,17 @@ void Parser::_load_gltf_materials(sScene *scene,
             }
         }
 
+        material_gltf_scene_indexing[material_i] = material_index;
+
+        scene->is_material_full[material_index] = true;
+
         const tinygltf::Material *tiny_material = &model.materials[material_i];
         sMaterial *material = &scene->materials[material_index];
+
+        // Store Material name
+        scene->material_name_index_storage.add(tiny_material->name.c_str(),
+                                               tiny_material->name.size() + 1,
+                                               material_index);
 
         // TODO: AGUEIFNEI auto... sorry
         auto end_values = tiny_material->values.end();
@@ -77,7 +87,7 @@ void Parser::_load_gltf_materials(sScene *scene,
                             tiny_img,
                             material);
         }
-
-        //tiny_material->normalTexture;
     }
+
+    return material_gltf_scene_indexing;
 }

@@ -11,6 +11,8 @@
 #include "shader.h"
 #include "input_layer.h"
 #include "gltf_parser.h"
+#include "gltf_scene.h"
+
 
 // Dear IMGUI
 #include "imgui/imgui.h"
@@ -101,18 +103,20 @@ void draw_loop(GLFWwindow *window) {
 	camera.position = camera_original_position;
 	camera.look_at(sVector3{0.0f, 0.0f, 0.0f});
 
-	// Complex material cube
-	sMeshRenderer cube_renderer;
-	sMesh cube_mesh;
-	cube_mesh.load_OBJ_mesh("resources/cube.obj");
-	cube_renderer.create_from_mesh(&cube_mesh);
 
-	sMaterial cube_material;
-	cube_renderer.material.add_texture("resources/textures/normal.png", NORMAL_MAP);
-	cube_renderer.material.add_texture("resources/textures/color.png", COLOR_MAP);
-	cube_renderer.material.add_texture("resources/textures/rough.png", SPECULAR_MAP);
-	cube_renderer.material.add_shader("resources/shaders/pbr.vs", "resources/shaders/pbr.fs");
+	sScene scene = {};
 
+	scene.init();
+
+	Parser::load_gltf_model(&scene,
+							"resources/models/helmet/SciFiHelmet.gltf");
+
+	int scifi_helm_material = scene.material_name_index_storage.get_int("SciFiHelmet",
+																		12);
+	scene.materials[scifi_helm_material].add_shader("resources/shaders/plain.vs",
+													"resources/shaders/plain.fs");
+
+	std::cout << scifi_helm_material << std::endl;
 
 	double prev_frame_time = glfwGetTime();
 	sInputLayer *input_state = get_game_input_instance();
@@ -120,11 +124,9 @@ void draw_loop(GLFWwindow *window) {
 	sMat44 viewproj_mat = {};
 	sMat44 proj_mat = {};
 
-	sMat44 obj_model = {};
-	obj_model.set_identity();
-	obj_model.set_scale({1.0f, 1.0f, 1.f});
-
 	float camera_angle = 274.001f;
+
+	glEnable(GL_DEPTH_TEST);
 
 	while(!glfwWindowShouldClose(window)) {
 		// Draw loop
@@ -138,9 +140,8 @@ void draw_loop(GLFWwindow *window) {
 		float aspect_ratio = (float) width / heigth;
 
 		// OpenGL stuff
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
-		glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ImGui_ImplOpenGL3_NewFrame();
     	ImGui_ImplGlfw_NewFrame();
@@ -170,9 +171,22 @@ void draw_loop(GLFWwindow *window) {
 		camera.look_at({0.0f, 0.0f, 0.0f});
 		camera.get_perspective_viewprojection_matrix(90.0f, 1000.0f, 0.01f, aspect_ratio, &viewproj_mat);
 
-		cube_renderer.render(&obj_model, 1, viewproj_mat, false, camera);
+		// TODO: SCENE RENDER
+		scene.render(camera,
+					 viewproj_mat);
 
 		ImGui::End();
+
+		ImGui::Begin("Scene Nodes");
+		for(uint16_t index = 0; index < MAX_NODE_COUNT; index++) {
+			if (!scene.node_is_full[index]) {
+				continue;
+			}
+
+			ImGui::Text("%s", scene.node_name[index]);
+		}
+		ImGui::End();
+
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -180,8 +194,6 @@ void draw_loop(GLFWwindow *window) {
 		glfwPollEvents();
 	}
 }
-
-#include "gltf_scene.h"
 
 int main() {
 	if (!glfwInit()) {
@@ -208,18 +220,6 @@ int main() {
 		std::cout << "Error, could not create window" << std::endl; 
 	} else {
 		if (!gl3wInit()) {
-
-			sScene scene = {};
-
-			scene.init();
-
-			Parser::load_gltf_model(&scene,
-									"resources/models/helmet/SciFiHelmet.gltf");
-
-			glfwDestroyWindow(window);
-			glfwTerminate();
-			std::cout << "UHGR" << std::endl;
-			return 0;
 			// IMGUI version
 			//IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
