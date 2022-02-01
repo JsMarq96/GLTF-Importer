@@ -24,6 +24,7 @@ void sScene::render(const sCamera &camera,
         for(uint16_t submesh_index = mesh_of_object[node_i]; submesh_index < MAX_SUBMESH_COUNT ;) {
             const sSubMeshRenderData *render_data = &submeshes_render[submesh_index];
             // Bind VAO
+            //std::cout << "> " <<  render_data->VAO << std::endl;
             glBindVertexArray(render_data->VAO);
 
             // Bind material

@@ -22,8 +22,8 @@ uint32_t* Parser::_load_gltf_geometry(sScene *scene,
                         GL_STATIC_DRAW);
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     // 2) Load meshes ===================================
     // Temp storage for building the nodes,
@@ -81,15 +81,14 @@ uint32_t* Parser::_load_gltf_geometry(sScene *scene,
             curr_render_data->render_mode = mode;
 
             // Bind VAO
-            curr_render_data->VAO = total_VAOs[current_VAO_index];
+            curr_render_data->VAO = total_VAOs[current_VAO_index++];
             glBindVertexArray(curr_render_data->VAO);
 
             // Store and bind EBO
             curr_render_buffers->EBO = total_VBOs[model.accessors[prim->indices].bufferView];
             curr_render_data->indices_size = model.accessors[prim->indices].count;
             curr_render_data->indices_type = model.accessors[prim->indices].type;
-            std::cout << model.accessors[prim->indices].count << std::endl;
-            std::cout << curr_render_data->indices_size << std::endl;
+
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, curr_render_buffers->EBO);
 
             // Bind VBOs

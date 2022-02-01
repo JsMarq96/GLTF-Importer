@@ -8,8 +8,6 @@ uniform mat4 u_model_mat;
 uniform mat4 u_viewproj_mat;
 
 void main() {	
-	vec4 pos = u_viewproj_mat * u_model_mat * vec4(a_vertex, 1.0);
-
 	//calcule the position of the vertex using the matrices
-	gl_Position = pos;
+	gl_Position = u_viewproj_mat * u_model_mat * vec4(a_vertex, 1.0);
 }

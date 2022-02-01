@@ -21,15 +21,20 @@ struct sMeshRenderer {
     void create_from_mesh(const sMesh *mesh) {
         indices_count = mesh->indexing_count;
 
-        glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
         glGenBuffers(1, &EBO);
 
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, mesh->vertex_count * sizeof(sRawVertex), mesh->vertices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indexing_count * sizeof(uint16_t), mesh->vertices_index, GL_STATIC_DRAW);
+
+        glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
 
         // Load vertices
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, mesh->vertex_count * sizeof(sRawVertex), mesh->vertices, GL_STATIC_DRAW);
 
         // Vertex position
         glEnableVertexAttribArray(0);
@@ -45,8 +50,6 @@ struct sMeshRenderer {
 
         // Load vertex indexing
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indexing_count * sizeof(uint16_t), mesh->vertices_index, GL_STATIC_DRAW);
-
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 

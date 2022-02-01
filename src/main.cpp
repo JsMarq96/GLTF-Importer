@@ -2,6 +2,7 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
+#include "skybox_renderer.h"
 #include "tiny_gltf.h"
 
 #include "math/vector.h"
@@ -99,15 +100,16 @@ void draw_loop(GLFWwindow *window) {
 
 	// Config scene
 	sCamera camera;
-	sVector3 camera_original_position = sVector3{2.0f, 2.60f, 2.0f};
+	sVector3 camera_original_position = sVector3{5.0f, 5.60f, 5.0f};
 	camera.position = camera_original_position;
 	camera.look_at(sVector3{0.0f, 0.0f, 0.0f});
 
+	sSkyBoxRenderer skybox_renderer = {};
+	skybox_renderer.init("resources/textures/skybox_");
 
 	sScene scene = {};
 
 	scene.init();
-
 	Parser::load_gltf_model(&scene,
 							"resources/models/helmet/SciFiHelmet.gltf");
 
@@ -118,6 +120,21 @@ void draw_loop(GLFWwindow *window) {
 
 	std::cout << scifi_helm_material << std::endl;
 
+	// Complex material cube
+	sMeshRenderer cube_renderer;
+	sMesh cube_mesh;
+	cube_mesh.load_OBJ_mesh("resources/cube.obj");
+	cube_renderer.create_from_mesh(&cube_mesh);
+
+	sMaterial cube_material;
+	cube_renderer.material.add_texture("resources/textures/normal.png", NORMAL_MAP);
+	cube_renderer.material.add_texture("resources/textures/color.png", COLOR_MAP);
+	cube_renderer.material.add_texture("resources/textures/rough.png", SPECULAR_MAP);
+	cube_renderer.material.add_shader("resources/shaders/pbr.vs", "resources/shaders/pbr.fs");
+	sMat44 obj_model = {};
+	obj_model.set_identity();
+	obj_model.set_scale({1.0f, 1.0f, 1.f});
+
 	double prev_frame_time = glfwGetTime();
 	sInputLayer *input_state = get_game_input_instance();
 
@@ -127,6 +144,7 @@ void draw_loop(GLFWwindow *window) {
 	float camera_angle = 274.001f;
 
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	while(!glfwWindowShouldClose(window)) {
 		// Draw loop
@@ -169,21 +187,27 @@ void draw_loop(GLFWwindow *window) {
 		ImGui::SliderFloat("Camera up-down", &camera.position.y, -3.01f, 8.0f);
 
 		camera.look_at({0.0f, 0.0f, 0.0f});
-		camera.get_perspective_viewprojection_matrix(90.0f, 1000.0f, 0.01f, aspect_ratio, &viewproj_mat);
+		camera.get_perspective_viewprojection_matrix(90.0f, 10000.0f, 0.0001f, aspect_ratio, &viewproj_mat);
 
-		// TODO: SCENE RENDER
+		skybox_renderer.render(viewproj_mat,
+							   camera);
+
 		scene.render(camera,
 					 viewproj_mat);
+
+		cube_renderer.render(&obj_model, 1, viewproj_mat, false, camera);
 
 		ImGui::End();
 
 		ImGui::Begin("Scene Nodes");
+		ImGui::Text("Camera: %f %f %f", camera.position.x, camera.position.y, camera.position.z);
 		for(uint16_t index = 0; index < MAX_NODE_COUNT; index++) {
 			if (!scene.node_is_full[index]) {
 				continue;
 			}
+			sMat44 *mod = &scene.models[index];
 
-			ImGui::Text("%s", scene.node_name[index]);
+			ImGui::Text("%s: %f %f %f", scene.node_name[index], mod->px, mod->py, mod->pz);
 		}
 		ImGui::End();
 

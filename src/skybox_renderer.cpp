@@ -80,7 +80,7 @@ void sSkyBoxRenderer::init(const char       *texture_dir) {
 }
 
 void sSkyBoxRenderer::render(const sMat44        &viewproj_mat,
-                                const sCamera       &camera) const {
+                             const sCamera       &camera) const {
     glBindVertexArray(VAO);
     //glDepthFunc(GL_LEQUAL);
 
