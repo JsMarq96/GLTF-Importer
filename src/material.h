@@ -8,7 +8,9 @@
 //#include <stdlib.h>
 
 #include <GL/gl3w.h>
+#include <cstddef>
 
+#include "glcorearb.h"
 #include "texture.h"
 #include "shader.h"
 
@@ -34,6 +36,13 @@ struct sMaterial {
 
     void add_texture(const char*          text_dir,
                      const eTextureType   text_type);
+
+    void add_raw_texture(const char* raw_data,
+                         const size_t width,
+                         const size_t height,
+                         const GLenum format,
+                         const GLenum type,
+                         const eTextureType text_type);
 
     void add_cubemap_texture(const char  *text_dir);
 

@@ -27,9 +27,9 @@ enum eVBO : uint8_t {
 
 
 struct sSubMeshRenderData {
-    uint32_t VAO = 0;
-    uint32_t render_mode = 0;
-    uint16_t indices_size = 0;
+    uint32_t  VAO = 0;
+    uint32_t  render_mode = 0;
+    uint16_t  indices_size = 0;
 };
 
 struct sSubMeshRenderBuffers {
@@ -64,6 +64,7 @@ struct sScene {
      // Scene composition
     // NOTE: Maybe, its better for data locality to include the is_full/used on the
     //       Submesh/material struct
+    // TODO: Store the texture names for loading in and out the materials out of GPU memmory
     sMaterial                 materials[MAX_MATERIAL_COUNT] = {};
     bool                      is_material_full[MAX_MATERIAL_COUNT] = {};
 

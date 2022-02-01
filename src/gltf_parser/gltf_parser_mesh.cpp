@@ -91,7 +91,7 @@ void Parser::_load_gltf_geometry(sScene *scene,
             //TODO: WARNING: This is only for a very strict format, so it may be a VERY bad idea
             // TODO: auto... UUUGHHH
             auto it = prim->attributes.find("POSITION");
-            if (it == prim->attributes.end()) {
+            if (it != prim->attributes.end()) {
                 const uint32_t accesor_i = it->second;
                 const tinygltf::Accessor *accesor = &model.accessors[accesor_i];
 
@@ -107,7 +107,7 @@ void Parser::_load_gltf_geometry(sScene *scene,
                                       (void*) 0);
             }
             it = prim->attributes.find("NORMAL");
-            if (it == prim->attributes.end()) {
+            if (it != prim->attributes.end()) {
                 uint32_t accesor_i = it->second;
                 const tinygltf::Accessor *accesor = &model.accessors[accesor_i];
 
@@ -123,7 +123,7 @@ void Parser::_load_gltf_geometry(sScene *scene,
                                       (void*) 0);
             }
             it = prim->attributes.find("TEXCOORD_0");
-            if (it == prim->attributes.end()) {
+            if (it != prim->attributes.end()) {
                 uint32_t accesor_i = it->second;
                 const tinygltf::Accessor *accesor = &model.accessors[accesor_i];
 
