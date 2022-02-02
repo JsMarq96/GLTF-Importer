@@ -1,7 +1,5 @@
 #version 330 core
-
 layout(location = 0) in vec3 a_v_pos;
-
 out vec3 tex_coords;
 
 uniform mat4 u_model_mat;

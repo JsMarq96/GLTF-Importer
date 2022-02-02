@@ -104,33 +104,58 @@ void draw_loop(GLFWwindow *window) {
 	camera.position = camera_original_position;
 	camera.look_at(sVector3{0.0f, 0.0f, 0.0f});
 
-	sSkyBoxRenderer skybox_renderer = {};
-	skybox_renderer.init("resources/textures/skybox_");
-
-	sScene scene = {};
-
-	scene.init();
-	Parser::load_gltf_model(&scene,
-							"resources/models/helmet/SciFiHelmet.gltf");
-
-	int scifi_helm_material = scene.material_name_index_storage.get_int("SciFiHelmet",
-																		12);
-	scene.materials[scifi_helm_material].add_shader("resources/shaders/plain.vs",
-													"resources/shaders/plain.fs");
-
-	std::cout << scifi_helm_material << std::endl;
-
 	// Complex material cube
 	sMeshRenderer cube_renderer;
 	sMesh cube_mesh;
+
+	sSkyBoxRenderer skybox_renderer = {};
+	sScene scene = {};
+	scene.init();
+
+#ifdef _WIN32
+	skybox_renderer.init("..\\resources\\textures/skybox_");
+
+	Parser::load_gltf_model(&scene,
+							"..\\resources\\models\\helmet\\SciFiHelmet.gltf");
+
+	int scifi_helm_material = scene.material_name_index_storage.get_int("SciFiHelmet",
+																		12);
+	scene.materials[scifi_helm_material].add_shader("..\\resources\\shaders\\plain.vs",
+													"..\\resources\\shaders\\plain.fs");
+
+	std::cout << scifi_helm_material << std::endl;
+
+	
+	cube_mesh.load_OBJ_mesh("..\\resources\\cube.obj");
+	cube_renderer.create_from_mesh(&cube_mesh);
+
+	cube_renderer.material.add_texture("..\\resources\\textures\\normal.png", NORMAL_MAP);
+	cube_renderer.material.add_texture("..\\resources\\textures\\color.png", COLOR_MAP);
+	cube_renderer.material.add_texture("..\\resources\\textures\\rough.png", SPECULAR_MAP);
+	cube_renderer.material.add_shader("..\\resources\\shaders\\pbr.vs", "..\\resources\\shaders\\pbr.fs");
+#else
+	skybox_renderer.init("resources/textures/skybox_");
+
+	Parser::load_gltf_model(&scene,
+		"resources/models/helmet/SciFiHelmet.gltf");
+
+	int scifi_helm_material = scene.material_name_index_storage.get_int("SciFiHelmet",
+		12);
+	scene.materials[scifi_helm_material].add_shader("resources/shaders/plain.vs",
+		"resources/shaders/plain.fs");
+
+	std::cout << scifi_helm_material << std::endl;
+
+
 	cube_mesh.load_OBJ_mesh("resources/cube.obj");
 	cube_renderer.create_from_mesh(&cube_mesh);
 
-	sMaterial cube_material;
 	cube_renderer.material.add_texture("resources/textures/normal.png", NORMAL_MAP);
 	cube_renderer.material.add_texture("resources/textures/color.png", COLOR_MAP);
 	cube_renderer.material.add_texture("resources/textures/rough.png", SPECULAR_MAP);
 	cube_renderer.material.add_shader("resources/shaders/pbr.vs", "resources/shaders/pbr.fs");
+#endif
+
 	sMat44 obj_model = {};
 	obj_model.set_identity();
 	obj_model.set_scale({1.0f, 1.0f, 1.f});
