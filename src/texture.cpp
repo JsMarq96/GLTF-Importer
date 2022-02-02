@@ -32,10 +32,11 @@ void load_texture(sTexture  *text,
 
         // Generate buffer based on teh biggest possible size, the bottom terminating png
         char *name_buffer = (char*) malloc(strlen(texture_name) + sizeof("bottom.png") + 1);
+
         unsigned char* raw_data = NULL;
         for(int i = 0; i < 6; i++) {
             int w, h, l;
-            memset(name_buffer, '\0', strlen(name_buffer));
+            memset(name_buffer, '\0', strlen(texture_name) + sizeof("bottom.png") + 1);
             strcat(name_buffer, texture_name);
             strcat(name_buffer, cubemap_terminations[i]);
 

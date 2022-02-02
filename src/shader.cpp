@@ -129,17 +129,8 @@ void sShader::load_shaders(const char*   vertex_shader_raw,
     ID = glCreateProgram();
     glAttachShader(ID, vertex_id);
     glAttachShader(ID, fragment_id);
-    GLenum t = glGetError();
     glLinkProgram(ID);
-    
     glGetProgramiv(ID, GL_LINK_STATUS, &compile_successs);
-    try {
-
-    }
-    catch (int e) {
-        std::cout << e << std::endl;
-    }
-    
 
     if (!compile_successs) {
         glGetProgramInfoLog(ID, 512, NULL, compile_log);
