@@ -76,11 +76,11 @@ void sShader::load_file_shaders(const char*     v_shader_dir,
     rewind(vert_file);
     rewind(frag_file);
 
-    raw_vert_shader = (char*) malloc((sizeof(char) * vert_size) + 1);
-    raw_frag_shader = (char*) malloc((sizeof(char) * frag_size) + 1);
+    raw_vert_shader = (char*) malloc((vert_size) + 1);
+    raw_frag_shader = (char*) malloc((frag_size) + 1);
 
     memset(raw_vert_shader, '\0', vert_size + 1);
-    memset(raw_frag_shader, '\0', vert_size + 1);
+    memset(raw_frag_shader, '\0', frag_size + 1);
 
     // read the raw file
     fread(raw_vert_shader, 1, vert_size, vert_file);
