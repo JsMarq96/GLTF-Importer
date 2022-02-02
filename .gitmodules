@@ -1,3 +1,4 @@
-[submodule "includes/glfw"]
-	path = includes/glfw
-	url = https://github.com/glfw/glfw
+
+[submodule "glfw"]
+	path = glfw
+	url = https://github.com/glfw/glfw.git

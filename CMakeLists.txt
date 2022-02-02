@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.13)
 
-
 SET(CMAKE_CXX_FLAGS  "-g")
 
 project(GL_GLFW_TEMPLATE)
 
 file(GLOB CPP_SOURCES "src/*.cpp")
-file(GLOB CPP_IMGUI_SOURCES "src/imgui/*.cpp")
+file(GLOB CPP_SUBFOLDER_SOURCES "src/**/*.cpp")
 file(GLOB C_SOURCES "src/*.c")
+file(GLOB C_SUBFOLDER_SOURCES "src/**/*.c")
 set(includes_dir "includes/")
 
-add_executable(GL_GLFW_TEMPLATE WIN32 ${CPP_SOURCES} ${CPP_IMGUI_SOURCES} ${C_SOURCES})
+add_executable(GL_GLFW_TEMPLATE WIN32 ${CPP_SOURCES} ${CPP_SUBFOLDER_SOURCES} ${C_SOURCES} ${C_SUBFOLDER_SOURCES})
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) 
 set(GLFW_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory("includes/glfw")
+add_subdirectory("glfw")
 target_link_libraries(GL_GLFW_TEMPLATE "glfw")
 
 set(gl3w_dir "${includes_dir}/GL")
