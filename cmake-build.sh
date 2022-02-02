@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-
-cmake .
+mkdir build
+cd build
+cmake ..
 intercept-build make
-make clean
-cd ..
+mv compile_commands.json ../compile_commands.json
