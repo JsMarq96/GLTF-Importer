@@ -41,6 +41,6 @@ include_directories(
   gl3w_dir
  )
 
-add_custom_command(TARGET GL_GLFW_TEMPLATE PRE_BUILD
+add_custom_command(TARGET GL_GLFW_TEMPLATE POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                        ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:GL_GLFW_TEMPLATE>/resources)
