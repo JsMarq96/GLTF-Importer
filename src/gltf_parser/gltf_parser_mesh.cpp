@@ -80,6 +80,9 @@ uint32_t* Parser::_load_gltf_geometry(sScene *scene,
             }
             curr_render_data->render_mode = mode;
 
+            uint32_t accessor_type = 0;
+           
+
             // Bind VAO
             curr_render_data->VAO = total_VAOs[current_VAO_index++];
             glBindVertexArray(curr_render_data->VAO);
@@ -87,7 +90,7 @@ uint32_t* Parser::_load_gltf_geometry(sScene *scene,
             // Store and bind EBO
             curr_render_buffers->EBO = total_VBOs[model.accessors[prim->indices].bufferView];
             curr_render_data->indices_size = model.accessors[prim->indices].count;
-            curr_render_data->indices_type = model.accessors[prim->indices].type;
+            curr_render_data->indices_type = model.accessors[prim->indices].componentType;
 
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, curr_render_buffers->EBO);
 
