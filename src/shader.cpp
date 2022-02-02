@@ -76,8 +76,11 @@ void sShader::load_file_shaders(const char*     v_shader_dir,
     rewind(vert_file);
     rewind(frag_file);
 
-    raw_vert_shader = (char*) malloc(sizeof(char) * vert_size + 1);
-    raw_frag_shader = (char*) malloc(sizeof(char) * frag_size + 1);
+    raw_vert_shader = (char*) malloc((sizeof(char) * vert_size) + 1);
+    raw_frag_shader = (char*) malloc((sizeof(char) * frag_size) + 1);
+
+    memset(raw_vert_shader, '\0', vert_size + 1);
+    memset(raw_frag_shader, '\0', vert_size + 1);
 
     // read the raw file
     fread(raw_vert_shader, 1, vert_size, vert_file);
@@ -85,9 +88,6 @@ void sShader::load_file_shaders(const char*     v_shader_dir,
 
     fclose(vert_file);
     fclose(frag_file);
-
-    raw_vert_shader[vert_size] = '\0';
-    raw_frag_shader[frag_size] = '\0';
 
     load_shaders(raw_vert_shader, raw_frag_shader);
 
@@ -110,9 +110,6 @@ void sShader::load_shaders(const char*   vertex_shader_raw,
 
     if (!compile_successs) {
         glGetShaderInfoLog(vertex_id, 512, NULL, compile_log);
-        std::cout << compile_log << std::endl;
-        std::cout << vertex_shader_raw[15] << std::endl;
-        int p = vertex_shader_raw[15];
         assert(">>>>>Error comiling vertex shader" && false);
     }
 
@@ -132,8 +129,17 @@ void sShader::load_shaders(const char*   vertex_shader_raw,
     ID = glCreateProgram();
     glAttachShader(ID, vertex_id);
     glAttachShader(ID, fragment_id);
+    GLenum t = glGetError();
     glLinkProgram(ID);
+    
     glGetProgramiv(ID, GL_LINK_STATUS, &compile_successs);
+    try {
+
+    }
+    catch (int e) {
+        std::cout << e << std::endl;
+    }
+    
 
     if (!compile_successs) {
         glGetProgramInfoLog(ID, 512, NULL, compile_log);
