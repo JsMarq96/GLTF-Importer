@@ -74,7 +74,7 @@ void sSkyBoxRenderer::init(const char       *texture_dir) {
 
     glBindVertexArray(0);
 
-    skybox_material.shader.load_file_shaders("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
+    skybox_material.shader.load_file_shaders("..\\resources\\shaders\\skybox.vs", "..\\resources\\shaders\\skybox.fs");
 
     skybox_material.add_cubemap_texture(texture_dir);
 }
