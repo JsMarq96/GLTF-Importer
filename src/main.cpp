@@ -100,7 +100,7 @@ void draw_loop(GLFWwindow *window) {
 
 	// Config scene
 	sCamera camera;
-	sVector3 camera_original_position = sVector3{5.0f, 5.60f, 5.0f};
+	sVector3 camera_original_position = sVector3{0.0f, 2.00f, 5.0f};
 	camera.position = camera_original_position;
 	camera.look_at(sVector3{0.0f, 0.0f, 0.0f});
 
@@ -159,6 +159,7 @@ void draw_loop(GLFWwindow *window) {
 	sMat44 obj_model = {};
 	obj_model.set_identity();
 	obj_model.set_scale({1.0f, 1.0f, 1.f});
+	obj_model.set_position({5.0f, 0.0f, 0.0f});
 
 	double prev_frame_time = glfwGetTime();
 	sInputLayer *input_state = get_game_input_instance();
