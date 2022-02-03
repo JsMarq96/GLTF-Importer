@@ -65,6 +65,7 @@ struct sScene {
     sMat44                    models[MAX_NODE_COUNT] = {};
     uint16_t                  mesh_of_object[MAX_NODE_COUNT] = {};
     char                      node_name[MAX_NODE_COUNT][MAX_NAME_SIZE] = {};
+    sKVStorage                node_name_index_storage = {};
 
      // Scene composition
     // NOTE: Maybe, its better for data locality to include the is_full/used on the

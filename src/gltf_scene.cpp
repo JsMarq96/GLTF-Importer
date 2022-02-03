@@ -12,11 +12,12 @@ void sScene::init() {
     memset(is_material_full, false, sizeof(sScene::is_material_full));
 
     material_name_index_storage.init();
+    node_name_index_storage.init();
 };
 
 void sScene::render(const sCamera &camera,
                     const sMat44 &view_proj) const {
-    for(uint16_t node_i = 1; node_i < MAX_NODE_COUNT; node_i++) {
+    for(uint16_t node_i = 0; node_i < MAX_NODE_COUNT; node_i++) {
         if (!enabled[node_i]) {
             continue;
         }

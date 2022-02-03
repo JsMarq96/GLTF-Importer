@@ -95,6 +95,9 @@ uint32_t* Parser::_load_gltf_materials(sScene *scene,
                             tiny_img,
                             material);
         }
+
+        material->add_shader("resources/shaders/plain.vs",
+                             "resources/shaders/plain.fs");
     }
 
     return material_gltf_scene_indexing;

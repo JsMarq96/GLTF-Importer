@@ -8,7 +8,8 @@
 
 namespace Parser {
     void load_gltf_model(sScene *scene,
-                         const char* gltf_root_dir);
+                         const char* gltf_root_dir,
+                         const bool  is_binary);
 
     uint32_t* _load_gltf_materials(sScene *scene,
                                    const tinygltf::Model &model);

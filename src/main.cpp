@@ -137,7 +137,16 @@ void draw_loop(GLFWwindow *window) {
 	skybox_renderer.init("resources/textures/skybox_");
 
 	Parser::load_gltf_model(&scene,
-		"resources/models/helmet/SciFiHelmet.gltf");
+							"resources/models/sponza/sponza.gltf",
+							false);
+std::cout << "Sponza load" << std::endl;
+
+	int sponza_id = scene.node_name_index_storage.get_int("Sponza", 7);
+
+	std::cout << sponza_id << std::endl;
+
+	Parser::load_gltf_model(&scene,
+		"resources/models/helmet/SciFiHelmet.gltf", false);
 
 	int scifi_helm_material = scene.material_name_index_storage.get_int("SciFiHelmet",
 		12);
@@ -147,13 +156,13 @@ void draw_loop(GLFWwindow *window) {
 	std::cout << scifi_helm_material << std::endl;
 
 
-	cube_mesh.load_OBJ_mesh("resources/cube.obj");
+	/*cube_mesh.load_OBJ_mesh("resources/cube.obj");
 	cube_renderer.create_from_mesh(&cube_mesh);
 
 	cube_renderer.material.add_texture("resources/textures/normal.png", NORMAL_MAP);
 	cube_renderer.material.add_texture("resources/textures/color.png", COLOR_MAP);
 	cube_renderer.material.add_texture("resources/textures/rough.png", SPECULAR_MAP);
-	cube_renderer.material.add_shader("resources/shaders/pbr_smooth.vs", "resources/shaders/pbr_smooth.fs");
+	cube_renderer.material.add_shader("resources/shaders/pbr_smooth.vs", "resources/shaders/pbr_smooth.fs");*/
 #endif
 
 	sMat44 obj_model = {};
@@ -204,6 +213,7 @@ void draw_loop(GLFWwindow *window) {
 		// ImGui
 		ImGui::Begin("Scene control");
 
+		ImGui::SliderFloat("Sponza Y position", &scene.models[sponza_id].py, -10.0f, 5.0f);
 		// Rotate the camera arround
 		if (ImGui::SliderFloat("Camera rotation", &camera_angle, 0.01f, 360.0f)) {
 			camera.position.x = (camera_original_position.x * cos(camera_angle / (180.0f / PI))) - (camera_original_position.z * sin(camera_angle/ (180.0f / PI)));

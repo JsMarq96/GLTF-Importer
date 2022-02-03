@@ -9,15 +9,26 @@
 #include "tiny_gltf.h"
 
 void Parser::load_gltf_model(      sScene  *scene,
-                             const char*   gltf_root_dir) {
+                             const char*   gltf_root_dir,
+                             const bool is_binary) {
     tinygltf::TinyGLTF loader;
     tinygltf::Model model;
     std::string error, warn;
 
-    bool parse_result = loader.LoadASCIIFromFile(&model,
+    bool parse_result;
+
+    if (is_binary) {
+        parse_result = loader.LoadBinaryFromFile(&model,
                                                  &error,
                                                  &warn,
                                                  gltf_root_dir);
+
+    } else {
+        parse_result = loader.LoadASCIIFromFile(&model,
+                                                 &error,
+                                                 &warn,
+                                                 gltf_root_dir);
+    }
 
     assert(parse_result && "Error parsing GLTF model");
 
@@ -36,6 +47,11 @@ void Parser::load_gltf_model(      sScene  *scene,
             }
         }
         tinygltf::Node *tiny_node = &model.nodes[node_i];
+
+        std::cout << "Add node at" << scene_node_index << std::endl;
+        scene->node_name_index_storage.add(tiny_node->name.c_str(),
+                                           tiny_node->name.size()+1,
+                                           scene_node_index);
 
         scene->enabled[scene_node_index] = true;
         scene->node_is_full[scene_node_index] = true;
