@@ -14,7 +14,7 @@ uniform vec3 u_camera_position;
 // Material maps
 uniform sampler2D u_albedo_map;
 uniform sampler2D u_normal_map;
-uniform sampler2D u_rough_map;
+uniform sampler2D u_metallic_rough_map;
 
 
 #define PI 3.14159265359
@@ -161,10 +161,10 @@ sMaterial getMaterialProperties_v3(sVectors vects, vec2 uv) {
     // Minecraft OldPBR format
     sMaterial mat_prop;
     // Convert the smoothness to roughness
-    mat_prop.roughness = (1.0 - texture2D(u_rough_map, uv).r);
+    mat_prop.roughness = (texture2D(u_metallic_rough_map, uv).r);
     mat_prop.roughness = mat_prop.roughness * mat_prop.roughness;
-    mat_prop.metalness = texture2D(u_rough_map, uv).g;
-    // mat_prop.emisiveness = texture2D(u_rough_map, v_uv).b;
+    mat_prop.metalness = texture2D(u_metallic_rough_map, uv).g;
+    // mat_prop.emisiveness = texture2D(u_metallic_rough_map, v_uv).b;
 
     mat_prop.normal = normalize(perturbNormal(vects.normal, vects.view, uv, texture2D(u_normal_map, uv).rgb));
 

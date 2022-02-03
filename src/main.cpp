@@ -100,7 +100,7 @@ void draw_loop(GLFWwindow *window) {
 
 	// Config scene
 	sCamera camera;
-	sVector3 camera_original_position = sVector3{0.0f, 2.00f, 5.0f};
+	sVector3 camera_original_position = sVector3{0.0f, 2.60f, 3.0f};
 	camera.position = camera_original_position;
 	camera.look_at(sVector3{0.0f, 0.0f, 0.0f});
 
@@ -120,8 +120,8 @@ void draw_loop(GLFWwindow *window) {
 
 	int scifi_helm_material = scene.material_name_index_storage.get_int("SciFiHelmet",
 																		12);
-	scene.materials[scifi_helm_material].add_shader("..\\resources\\shaders\\plain.vs",
-													"..\\resources\\shaders\\plain.fs");
+	scene.materials[scifi_helm_material].add_shader("..\\resources\\shaders\\pbr.vs",
+													"..\\resources\\shaders\\pbr.fs");
 
 	std::cout << scifi_helm_material << std::endl;
 
@@ -141,8 +141,8 @@ void draw_loop(GLFWwindow *window) {
 
 	int scifi_helm_material = scene.material_name_index_storage.get_int("SciFiHelmet",
 		12);
-	scene.materials[scifi_helm_material].add_shader("resources/shaders/plain.vs",
-		"resources/shaders/plain.fs");
+	scene.materials[scifi_helm_material].add_shader("resources/shaders/pbr.vs",
+													"resources/shaders/pbr.fs");
 
 	std::cout << scifi_helm_material << std::endl;
 
@@ -153,7 +153,7 @@ void draw_loop(GLFWwindow *window) {
 	cube_renderer.material.add_texture("resources/textures/normal.png", NORMAL_MAP);
 	cube_renderer.material.add_texture("resources/textures/color.png", COLOR_MAP);
 	cube_renderer.material.add_texture("resources/textures/rough.png", SPECULAR_MAP);
-	cube_renderer.material.add_shader("resources/shaders/pbr.vs", "resources/shaders/pbr.fs");
+	cube_renderer.material.add_shader("resources/shaders/pbr_smooth.vs", "resources/shaders/pbr_smooth.fs");
 #endif
 
 	sMat44 obj_model = {};

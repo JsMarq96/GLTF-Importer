@@ -20,10 +20,11 @@ enum eTextureType : int {
     COLOR_MAP = 0,
     NORMAL_MAP,
     SPECULAR_MAP,
+    METALLIC_ROUGHNESS_MAP,
     TEXTURE_TYPE_COUNT
 };
 
-const char texture_uniform_LUT[3][20] = { "u_albedo_map", "u_normal_map", "u_rough_map" };
+const char texture_uniform_LUT[TEXTURE_TYPE_COUNT][25] = { "u_albedo_map", "u_normal_map", "u_metallic_rough_map", "u_metallic_rough_map" };
 
 struct sMaterial {
     sTexture        textures[TEXTURE_TYPE_COUNT];

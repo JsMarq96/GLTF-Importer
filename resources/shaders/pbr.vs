@@ -4,9 +4,6 @@ layout (location = 0) in vec3 a_vertex;
 layout (location = 1) in vec2 a_uv;
 layout (location = 2) in vec3 a_normal;
 
-uniform mat4 u_prev_model;
-uniform mat4 u_prev_viewprojection;
-
 uniform mat4 u_model_mat;
 uniform mat4 u_viewproj_mat;
 

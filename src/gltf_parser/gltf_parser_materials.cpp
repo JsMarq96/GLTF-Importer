@@ -87,6 +87,14 @@ uint32_t* Parser::_load_gltf_materials(sScene *scene,
                             tiny_img,
                             material);
         }
+        it = tiny_material->additionalValues.find("metallicRoughnessTexture");
+        if (it != end_additional_values) {
+            const tinygltf::Image *tiny_img = &model.images[model.textures[it->second.TextureIndex()].source];
+
+            _upload_texture(METALLIC_ROUGHNESS_MAP,
+                            tiny_img,
+                            material);
+        }
     }
 
     return material_gltf_scene_indexing;
