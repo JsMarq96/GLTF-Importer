@@ -161,7 +161,7 @@ sMaterial getMaterialProperties_v3(sVectors vects, vec2 uv) {
     // Minecraft OldPBR format
     sMaterial mat_prop;
     // Convert the smoothness to roughness
-    mat_prop.roughness = (texture2D(u_metallic_rough_map, uv).r);
+    mat_prop.roughness = (texture2D(u_metallic_rough_map, uv).b);
     mat_prop.roughness = mat_prop.roughness * mat_prop.roughness;
     mat_prop.metalness = texture2D(u_metallic_rough_map, uv).g;
     // mat_prop.emisiveness = texture2D(u_metallic_rough_map, v_uv).b;

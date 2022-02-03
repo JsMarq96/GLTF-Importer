@@ -24,7 +24,12 @@ enum eTextureType : int {
     TEXTURE_TYPE_COUNT
 };
 
-const char texture_uniform_LUT[TEXTURE_TYPE_COUNT][25] = { "u_albedo_map", "u_normal_map", "u_metallic_rough_map", "u_metallic_rough_map" };
+const char texture_uniform_LUT[TEXTURE_TYPE_COUNT][25] = {
+   "u_albedo_map",
+   "u_normal_map",
+   "u_metallic_rough_map",
+   "u_metallic_rough_map"
+};
 
 struct sMaterial {
     sTexture        textures[TEXTURE_TYPE_COUNT];
@@ -46,6 +51,25 @@ struct sMaterial {
                          const eTextureType text_type);
 
     void add_cubemap_texture(const char  *text_dir);
+
+    uint8_t get_used_textures() const {
+        uint8_t tmp = 0b0;
+
+        if (enabled_textures[COLOR_MAP]) {
+            tmp |= 0b1;
+        }
+        if (enabled_textures[NORMAL_MAP]) {
+            tmp |= 0b10;
+        }
+        if (enabled_textures[SPECULAR_MAP]) {
+            tmp |= 0b100;
+        }
+        if (enabled_textures[METALLIC_ROUGHNESS_MAP]) {
+            tmp |= 0b1000;
+        }
+
+        return tmp;
+    };
 
     /**
     * Binds the textures on Opengl

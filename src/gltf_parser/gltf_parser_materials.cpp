@@ -42,7 +42,7 @@ void _upload_texture(const eTextureType text_type,
                                     data_size,
                                     text_type);
 }
-
+#include <bitset>
 uint32_t* Parser::_load_gltf_materials(sScene *scene,
                                        const tinygltf::Model &model) {
     uint32_t *material_gltf_scene_indexing = (uint32_t*) malloc(sizeof(uint32_t) * model.materials.size());
@@ -87,8 +87,8 @@ uint32_t* Parser::_load_gltf_materials(sScene *scene,
                             tiny_img,
                             material);
         }
-        it = tiny_material->additionalValues.find("metallicRoughnessTexture");
-        if (it != end_additional_values) {
+        it = tiny_material->values.find("metallicRoughnessTexture");
+        if (it != end_values) {
             const tinygltf::Image *tiny_img = &model.images[model.textures[it->second.TextureIndex()].source];
 
             _upload_texture(METALLIC_ROUGHNESS_MAP,
@@ -96,8 +96,16 @@ uint32_t* Parser::_load_gltf_materials(sScene *scene,
                             material);
         }
 
-        material->add_shader("resources/shaders/plain.vs",
-                             "resources/shaders/plain.fs");
+        uint8_t enabled_textures = material->get_used_textures();
+        switch (enabled_textures) {
+            case 0b1011:
+                material->add_shader("resources/shaders/pbr.vs",
+                                     "resources/shaders/pbr.fs");
+                break;
+            default:
+                material->add_shader("resources/shaders/plain.vs",
+                                     "resources/shaders/plain.fs");
+        }
     }
 
     return material_gltf_scene_indexing;

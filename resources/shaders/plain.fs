@@ -7,5 +7,9 @@ uniform sampler2D u_albedo_map;
 
 void main()
 {
-    FragColor = vec4(texture(u_albedo_map, v_uv).xyz, 1.0);
+    vec4 color = texture(u_albedo_map, v_uv);
+    if (color.a < 0.01) {
+       discard;
+    }
+    FragColor = vec4(color.rgb, 1.0);
 }
