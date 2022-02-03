@@ -100,13 +100,9 @@ void draw_loop(GLFWwindow *window) {
 
 	// Config scene
 	sCamera camera;
-	sVector3 camera_original_position = sVector3{0.0f, 2.60f, 3.0f};
+	sVector3 camera_original_position = sVector3{3.0f, 3.0f, 3.0f};
 	camera.position = camera_original_position;
 	camera.look_at(sVector3{0.0f, 0.0f, 0.0f});
-
-	// Complex material cube
-	sMeshRenderer cube_renderer;
-	sMesh cube_mesh;
 
 	sSkyBoxRenderer skybox_renderer = {};
 	sScene scene = {};
@@ -116,59 +112,39 @@ void draw_loop(GLFWwindow *window) {
 	skybox_renderer.init("..\\resources\\textures/skybox_");
 
 	Parser::load_gltf_model(&scene,
-							"..\\resources\\models\\helmet\\SciFiHelmet.gltf");
+							"..\\resources\\models\\sponza\\sponza.gltf",
+							false);
+
+	int sponza_id = scene.node_name_index_storage.get_int("Sponza",
+														  7);
+
+	Parser::load_gltf_model(&scene,
+							"..\\resources\\models\\helmet\\SciFiHelmet.gltf", false);
 
 	int scifi_helm_material = scene.material_name_index_storage.get_int("SciFiHelmet",
 																		12);
 	scene.materials[scifi_helm_material].add_shader("..\\resources\\shaders\\pbr.vs",
 													"..\\resources\\shaders\\pbr.fs");
-
-	std::cout << scifi_helm_material << std::endl;
-
-	
-	cube_mesh.load_OBJ_mesh("..\\resources\\cube.obj");
-	cube_renderer.create_from_mesh(&cube_mesh);
-
-	cube_renderer.material.add_texture("..\\resources\\textures\\normal.png", NORMAL_MAP);
-	cube_renderer.material.add_texture("..\\resources\\textures\\color.png", COLOR_MAP);
-	cube_renderer.material.add_texture("..\\resources\\textures\\rough.png", SPECULAR_MAP);
-	cube_renderer.material.add_shader("..\\resources\\shaders\\pbr.vs", "..\\resources\\shaders\\pbr.fs");
 #else
 	skybox_renderer.init("resources/textures/skybox_");
 
 	Parser::load_gltf_model(&scene,
 							"resources/models/sponza/sponza.gltf",
 							false);
-std::cout << "Sponza load" << std::endl;
 
-	int sponza_id = scene.node_name_index_storage.get_int("Sponza", 7);
-
-	std::cout << sponza_id << std::endl;
+	int sponza_id = scene.node_name_index_storage.get_int("Sponza",
+														  7);
 
 	Parser::load_gltf_model(&scene,
-		"resources/models/helmet/SciFiHelmet.gltf", false);
+							"resources/models/helmet/SciFiHelmet.gltf",
+							false);
 
 	int scifi_helm_material = scene.material_name_index_storage.get_int("SciFiHelmet",
-		12);
+																		12);
+
 	scene.materials[scifi_helm_material].add_shader("resources/shaders/pbr.vs",
 													"resources/shaders/pbr.fs");
-
-	std::cout << scifi_helm_material << std::endl;
-
-
-	/*cube_mesh.load_OBJ_mesh("resources/cube.obj");
-	cube_renderer.create_from_mesh(&cube_mesh);
-
-	cube_renderer.material.add_texture("resources/textures/normal.png", NORMAL_MAP);
-	cube_renderer.material.add_texture("resources/textures/color.png", COLOR_MAP);
-	cube_renderer.material.add_texture("resources/textures/rough.png", SPECULAR_MAP);
-	cube_renderer.material.add_shader("resources/shaders/pbr_smooth.vs", "resources/shaders/pbr_smooth.fs");*/
 #endif
-
-	sMat44 obj_model = {};
-	obj_model.set_identity();
-	obj_model.set_scale({1.0f, 1.0f, 1.f});
-	obj_model.set_position({5.0f, 0.0f, 0.0f});
 
 	double prev_frame_time = glfwGetTime();
 	sInputLayer *input_state = get_game_input_instance();
@@ -230,8 +206,6 @@ std::cout << "Sponza load" << std::endl;
 
 		scene.render(camera,
 					 viewproj_mat);
-
-		cube_renderer.render(&obj_model, 1, viewproj_mat, false, camera);
 
 		ImGui::End();
 
