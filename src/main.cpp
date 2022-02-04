@@ -156,6 +156,8 @@ void draw_loop(GLFWwindow *window) {
 
 	float yaw, pitch;
 
+	sVector3 light_position = {0.0f, 6.0f, 0.0f};
+
 	while(!glfwWindowShouldClose(window)) {
 		// Draw loop
 		int width, heigth;
@@ -177,6 +179,7 @@ void draw_loop(GLFWwindow *window) {
 
 		double curr_frame_time = glfwGetTime();
 		double elapsed_time = curr_frame_time - prev_frame_time;
+		prev_frame_time = curr_frame_time;
 
 		// Mouse position control
 		glfwGetCursorPos(window, &temp_mouse_x, &temp_mouse_y);
@@ -202,21 +205,23 @@ void draw_loop(GLFWwindow *window) {
 
 		// Camera control
 		if (glfwGetKey(window, GLFW_KEY_W)) {
-			camera.position = camera.position.sum(camera.f.normalize().mult(elapsed_time * 0.02f));
+			camera.position = camera.position.sum(camera.f.normalize().mult(elapsed_time * 1.5f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_S)) {
-			camera.position = camera.position.sum(camera.f.normalize().mult(-elapsed_time * 0.02f));
+			camera.position = camera.position.sum(camera.f.normalize().mult(-elapsed_time * 1.5f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_A)) {
-			camera.position = camera.position.sum(camera.s.normalize().mult(elapsed_time * 0.25f));
+			camera.position = camera.position.sum(camera.s.normalize().mult(-elapsed_time * 1.5f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_D)) {
-			camera.position = camera.position.sum(camera.s.normalize().mult(-elapsed_time * 0.02f));
+			camera.position = camera.position.sum(camera.s.normalize().mult(elapsed_time * 1.5f));
 		}
 
 
 		// ImGui
 		ImGui::Begin("Scene control");
+
+		ImGui::SliderFloat3("Light position", light_position.raw_values, -20.0f, 20.0f);
 
 		ImGui::SliderFloat("Sponza Y position", &scene.models[sponza_id].py, -10.0f, 5.0f);
 		// Rotate the camera arround
@@ -235,7 +240,8 @@ void draw_loop(GLFWwindow *window) {
 							   camera);
 
 		scene.render(camera,
-					 viewproj_mat);
+					 viewproj_mat,
+					 light_position);
 
 		ImGui::End();
 

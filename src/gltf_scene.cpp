@@ -4,6 +4,7 @@
 #include "material.h"
 #include <cstdint>
 
+#include "imgui/imgui.h"
 
 void sScene::init() {
     memset(enabled, false, sizeof(sScene::enabled));
@@ -16,7 +17,12 @@ void sScene::init() {
 };
 
 void sScene::render(const sCamera &camera,
-                    const sMat44 &view_proj) const {
+                    const sMat44 &view_proj,
+                    const sVector3 &light_position) const {
+    int render_mode = 0;
+
+    ImGui::SliderInt("Render output mode", &render_mode, 0, 4);
+
     for(uint16_t node_i = 0; node_i < MAX_NODE_COUNT; node_i++) {
         if (!enabled[node_i]) {
             continue;
@@ -37,6 +43,8 @@ void sScene::render(const sCamera &camera,
             curr_mat->shader.set_uniform_matrix4("u_model_mat", models[node_i]);
             curr_mat->shader.set_uniform_matrix4("u_viewproj_mat", view_proj);
             curr_mat->shader.set_uniform_vector("u_camera_position", camera.position);
+            curr_mat->shader.set_uniform_vector("u_light_position", light_position);
+            curr_mat->shader.set_uniform("u_output_mode", 0.0f + render_mode);
 
             glDrawElements(render_data->render_mode,
                             render_data->indices_size,

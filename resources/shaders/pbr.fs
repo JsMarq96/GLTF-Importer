@@ -10,6 +10,8 @@ varying vec2 v_uv;
 
 // Light & Scene uniforms
 uniform vec3 u_camera_position;
+uniform vec3 u_light_position;
+uniform float u_output_mode;
 
 // Material maps
 uniform sampler2D u_albedo_map;
@@ -136,7 +138,7 @@ sVectors computeVectors() {
     sVectors result;
     result.normal = normalize(v_normal);
     result.view = normalize(u_camera_position - v_world_position);
-    result.light = normalize(vec3(0.0, 45.0, 0.0) - v_world_position);
+    result.light = normalize(u_light_position - v_world_position);
     result.half_v = normalize(result.view + result.light);
     result.reflect = normalize(reflect(-result.view, result.normal));
 
@@ -161,9 +163,9 @@ sMaterial getMaterialProperties_v3(sVectors vects, vec2 uv) {
     // Minecraft OldPBR format
     sMaterial mat_prop;
     // Convert the smoothness to roughness
-    mat_prop.roughness = (texture2D(u_metallic_rough_map, uv).b);
+    mat_prop.roughness = (texture2D(u_metallic_rough_map, uv).g);
     mat_prop.roughness = mat_prop.roughness * mat_prop.roughness;
-    mat_prop.metalness = texture2D(u_metallic_rough_map, uv).g;
+    mat_prop.metalness = texture2D(u_metallic_rough_map, uv).b;
     // mat_prop.emisiveness = texture2D(u_metallic_rough_map, v_uv).b;
 
     mat_prop.normal = normalize(perturbNormal(vects.normal, vects.view, uv, texture2D(u_normal_map, uv).rgb));
@@ -306,14 +308,15 @@ void main() {
 
     // Ouput other textures for debugging
     vec3 output_color;
-    float u_output_mode = 0.0;
     if (u_output_mode == 0.0) {
         output_color = color;
     } else if (u_output_mode == 1.0) {
         output_color = frag_material.base_color;
     } else if (u_output_mode == 2.0) {
         output_color = vec3(frag_material.roughness, frag_material.roughness, frag_material.roughness);
-    } else if (u_output_mode == 4.0) {
+    } else if (u_output_mode == 3.0) {
+        output_color = vec3(frag_material.metalness, frag_material.metalness, frag_material.metalness);
+    }else if (u_output_mode == 4.0) {
         output_color = vec3(frag_material.normal);
     }
     frag_col = vec4(output_color, frag_material.alpha);

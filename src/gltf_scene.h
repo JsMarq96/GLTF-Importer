@@ -86,7 +86,8 @@ struct sScene {
     void init();
 
     void render(const sCamera &camera,
-                const sMat44 &view_proj) const;
+                const sMat44 &view_proj,
+                const sVector3 &light_pos) const;
 
     void clean();
 };
