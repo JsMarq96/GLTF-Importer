@@ -22,26 +22,30 @@
 // TODO: cleanup a bit, its getting a bit messy bro
 // tired fixing it a bit
 
+inline float radians(const float degrees) {
+    return degrees * PI / 180.0f;
+}
+
 //// VECTOR QUATERNION FUNCTIONS
 inline sQuaternion4 sVector3::get_pure_quaternion() const {
   return sQuaternion4{0.0f, x, y, z};
 }
 
 inline sVector3 sQuaternion4::get_vector() const {
-        return {x, y, z};
-    }
+    return {x, y, z};
+}
 
 
 //// VECTOR MATRIX FUNCTIONS
 inline sVector3 sVector3::rotate(const sQuaternion4 &quat) const {
-        sMat44 rot = {};
-        rot.convert_quaternion_to_matrix(quat);
-        sVector4 v2 {x, y, z, 1.0f};
+    sMat44 rot = {};
+    rot.convert_quaternion_to_matrix(quat);
+    sVector4 v2 {x, y, z, 1.0f};
 
-        sVector4 yt = rot.multiply(v2);
+    sVector4 yt = rot.multiply(v2);
 
-        return sVector3{yt.x, yt.y, yt.z};
-    }
+    return sVector3{yt.x, yt.y, yt.z};
+}
 
 
 

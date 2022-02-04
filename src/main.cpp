@@ -24,6 +24,8 @@
 #define WIN_HEIGHT	480
 #define WIN_NAME	"Test"
 
+sInputLayer input_state = {};
+
 void temp_error_callback(int error_code, const char* descr) {
 	std::cout << "GLFW Error: " << error_code << " " << descr << std::endl;
 }
@@ -61,12 +63,9 @@ void key_callback(GLFWwindow *wind, int key, int scancode, int action, int mods)
 		case GLFW_KEY_LEFT:
 			pressed_key = LEFT_KEY;
 			break;
-
-		sInputLayer *input = get_game_input_instance();
-		input->keyboard[pressed_key] = (action == GLFW_PRESS) ? KEY_PRESSED : KEY_RELEASED;
 	};
 
-
+	input_state.keyboard[pressed_key] = (action == GLFW_PRESS) ? KEY_PRESSED : KEY_RELEASED;
 }
 
 void mouse_button_callback(GLFWwindow *wind, int button, int action, int mods) {
@@ -86,8 +85,7 @@ void mouse_button_callback(GLFWwindow *wind, int button, int action, int mods) {
 		break;
 	}
 
-	sInputLayer *input = get_game_input_instance();
-	input->mouse_clicks[index] = (action == GLFW_PRESS) ? KEY_PRESSED : KEY_RELEASED;
+	input_state.mouse_clicks[index] = (action == GLFW_PRESS) ? KEY_PRESSED : KEY_RELEASED;
 }
 
 void cursor_enter_callback(GLFWwindow *window, int entered) {
@@ -147,7 +145,6 @@ void draw_loop(GLFWwindow *window) {
 #endif
 
 	double prev_frame_time = glfwGetTime();
-	sInputLayer *input_state = get_game_input_instance();
 
 	sMat44 viewproj_mat = {};
 	sMat44 proj_mat = {};
@@ -156,6 +153,8 @@ void draw_loop(GLFWwindow *window) {
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
+	float yaw, pitch;
 
 	while(!glfwWindowShouldClose(window)) {
 		// Draw loop
@@ -181,10 +180,40 @@ void draw_loop(GLFWwindow *window) {
 
 		// Mouse position control
 		glfwGetCursorPos(window, &temp_mouse_x, &temp_mouse_y);
-		input_state->mouse_speed_x = abs(input_state->mouse_pos_x - temp_mouse_x) * elapsed_time;
-		input_state->mouse_speed_y = abs(input_state->mouse_pos_y - temp_mouse_y) * elapsed_time;
-		input_state->mouse_pos_x = temp_mouse_x;
-		input_state->mouse_pos_y = temp_mouse_y;
+
+		if (input_state.mouse_clicks[RIGHT_CLICK] == KEY_PRESSED) {
+			pitch += 0.1f * (input_state.mouse_pos_x - temp_mouse_x);
+			yaw+= 0.1f * (input_state.mouse_pos_y - temp_mouse_y);
+
+			if (pitch > 90.0f) {
+				pitch = 90.0f;
+			} else if (pitch < -90.0f) {
+				pitch = -90.0f;
+			}
+		}
+
+		//camera.set_rotation(pitch, yaw);
+
+		input_state.mouse_speed_x = abs(input_state.mouse_pos_x - temp_mouse_x) * elapsed_time;
+		input_state.mouse_speed_y = abs(input_state.mouse_pos_y - temp_mouse_y) * elapsed_time;
+		input_state.mouse_pos_x = temp_mouse_x;
+		input_state.mouse_pos_y = temp_mouse_y;
+
+
+		// Camera control
+		if (glfwGetKey(window, GLFW_KEY_W)) {
+			camera.position = camera.position.sum(camera.f.normalize().mult(elapsed_time * 0.05f));
+		}
+		if (glfwGetKey(window, GLFW_KEY_S)) {
+			camera.position = camera.position.sum(camera.f.normalize().mult(-elapsed_time * 0.05f));
+		}
+		if (glfwGetKey(window, GLFW_KEY_A)) {
+			camera.position = camera.position.sum(camera.s.normalize().mult(elapsed_time * 0.05f));
+		}
+		if (glfwGetKey(window, GLFW_KEY_D)) {
+			camera.position = camera.position.sum(camera.s.normalize().mult(-elapsed_time * 0.05f));
+		}
+
 
 		// ImGui
 		ImGui::Begin("Scene control");

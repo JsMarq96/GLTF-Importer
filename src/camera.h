@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <cmath>
+#include <math.h>
 #include "math.h"
 
 /**
@@ -98,7 +99,6 @@ struct sCamera {
       get_perspective_projection_matrix(FOV, far_plane, near_plane, aspect_ratio, result);
 
       result->multiply(&tmp);
-
       //memcpy(result, &tmp, sizeof(sMat44));
     }
 
@@ -110,6 +110,17 @@ struct sCamera {
 
         //get_projection_matrix(&(new_instance->ortho_matrix));
     }
+
+  void
+  set_rotation(const float pitch,
+               const float yaw) {
+    sVector3 dir = {};
+    dir.x = cos(radians(yaw)) * cos(radians(pitch));
+    dir.y = radians(pitch);
+    dir.z = sin(radians(yaw)) * cos(radians(pitch));
+
+    f = dir.normalize();
+  }
 };
 
 #endif // CAMERA_H_
