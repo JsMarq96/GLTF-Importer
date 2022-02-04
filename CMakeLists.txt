@@ -11,7 +11,11 @@ file(GLOB C_SOURCES "src/*.c")
 file(GLOB C_SUBFOLDER_SOURCES "src/**/*.c")
 set(includes_dir "includes/")
 
+set(math_lib_dir "math/")
+
 add_executable(GL_GLFW_TEMPLATE WIN32 ${CPP_SOURCES} ${CPP_SUBFOLDER_SOURCES} ${C_SOURCES} ${C_SUBFOLDER_SOURCES})
+
+target_include_directories(GL_GLFW_TEMPLATE PRIVATE "math/")
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -35,12 +39,13 @@ endif()
     set_property( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT GL_GLFW_TEMPLATE)
 endif()
 
-set_target_properties(GL_GLFW_TEMPLATE PROPERTIES OUTPUT_NAME "template")
-
 include_directories(
+  math_lib_dir
   includes
   gl3w_dir
  )
+
+set_target_properties(GL_GLFW_TEMPLATE PROPERTIES OUTPUT_NAME "template")
 
 add_custom_command(TARGET GL_GLFW_TEMPLATE POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory

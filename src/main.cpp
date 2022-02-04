@@ -5,7 +5,6 @@
 #include "skybox_renderer.h"
 #include "tiny_gltf.h"
 
-#include "math/vector.h"
 #include "mesh.h"
 #include "material.h"
 #include "mesh_renderer.h"

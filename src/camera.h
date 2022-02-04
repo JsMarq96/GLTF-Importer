@@ -3,7 +3,6 @@
 
 #include <cstring>
 #include <cmath>
-#include <math.h>
 #include "math.h"
 
 /**
