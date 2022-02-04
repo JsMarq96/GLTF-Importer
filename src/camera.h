@@ -88,6 +88,25 @@ struct sCamera {
       view_mat.mat_values[3][2] = dot_prod(f, position); 
     }
 
+  void compute_view_matrix() {
+    s = cross_prod(f, sVector3{0.f, 1.0f, 0.0f}).normalize();
+      u = cross_prod(s, f);
+
+      view_mat.set_identity();
+      view_mat.mat_values[0][0] = s.x;
+      view_mat.mat_values[1][0] = s.y;
+      view_mat.mat_values[2][0] = s.z;
+      view_mat.mat_values[0][1] = u.x;
+      view_mat.mat_values[1][1] = u.y;
+      view_mat.mat_values[2][1] = u.z;
+      view_mat.mat_values[0][2] = -f.x;
+      view_mat.mat_values[1][2] = -f.y;
+      view_mat.mat_values[2][2] = -f.z;
+      view_mat.mat_values[3][0] = -dot_prod(s, position);
+      view_mat.mat_values[3][1] = -dot_prod(u, position);
+      view_mat.mat_values[3][2] = dot_prod(f, position);
+  }
+
     void
     get_perspective_viewprojection_matrix(const float FOV, 
                                           const float far_plane, 

@@ -181,18 +181,18 @@ void draw_loop(GLFWwindow *window) {
 		// Mouse position control
 		glfwGetCursorPos(window, &temp_mouse_x, &temp_mouse_y);
 
-		if (input_state.mouse_clicks[RIGHT_CLICK] == KEY_PRESSED) {
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) {
 			pitch += 0.1f * (input_state.mouse_pos_x - temp_mouse_x);
-			yaw+= 0.1f * (input_state.mouse_pos_y - temp_mouse_y);
+			yaw += 0.1f * (input_state.mouse_pos_y - temp_mouse_y);
 
-			if (pitch > 90.0f) {
-				pitch = 90.0f;
-			} else if (pitch < -90.0f) {
-				pitch = -90.0f;
+			if (yaw > 90.0f) {
+				yaw = 90.0f;
+			} else if (yaw < -90.0f) {
+				yaw = -90.0f;
 			}
 		}
 
-		//camera.set_rotation(pitch, yaw);
+		camera.set_rotation(yaw, pitch);
 
 		input_state.mouse_speed_x = abs(input_state.mouse_pos_x - temp_mouse_x) * elapsed_time;
 		input_state.mouse_speed_y = abs(input_state.mouse_pos_y - temp_mouse_y) * elapsed_time;
@@ -202,16 +202,16 @@ void draw_loop(GLFWwindow *window) {
 
 		// Camera control
 		if (glfwGetKey(window, GLFW_KEY_W)) {
-			camera.position = camera.position.sum(camera.f.normalize().mult(elapsed_time * 0.05f));
+			camera.position = camera.position.sum(camera.f.normalize().mult(elapsed_time * 0.02f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_S)) {
-			camera.position = camera.position.sum(camera.f.normalize().mult(-elapsed_time * 0.05f));
+			camera.position = camera.position.sum(camera.f.normalize().mult(-elapsed_time * 0.02f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_A)) {
-			camera.position = camera.position.sum(camera.s.normalize().mult(elapsed_time * 0.05f));
+			camera.position = camera.position.sum(camera.s.normalize().mult(elapsed_time * 0.25f));
 		}
 		if (glfwGetKey(window, GLFW_KEY_D)) {
-			camera.position = camera.position.sum(camera.s.normalize().mult(-elapsed_time * 0.05f));
+			camera.position = camera.position.sum(camera.s.normalize().mult(-elapsed_time * 0.02f));
 		}
 
 
@@ -227,7 +227,8 @@ void draw_loop(GLFWwindow *window) {
 
 		ImGui::SliderFloat("Camera up-down", &camera.position.y, -3.01f, 8.0f);
 
-		camera.look_at({0.0f, 0.0f, 0.0f});
+		//camera.look_at({0.0f, 0.0f, 0.0f});
+		camera.compute_view_matrix();
 		camera.get_perspective_viewprojection_matrix(90.0f, 10000.0f, 0.0001f, aspect_ratio, &viewproj_mat);
 
 		skybox_renderer.render(viewproj_mat,
